@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Flashcard Anh – Việt</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Newsreader:ital,wght@0,400;0,500;1,400&family=Be+Vietnam+Pro:wght@400;500;600&display=swap">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --desk:#e3ebee; --card:#fffefb; --ink:#1c2631; --muted:#5d6b7a; --rule:#d3e0ec; --red:#e0584f;
+  --accent:#2a55d4; --accent-ink:#fff; --hl:#ffe45e; --hl-ink:#1c2631; --ok:#1f8a58; --no:#c8453d; --chip:#f4f8fa; --line:#c3d0da;
+  --shadow:0 1px 0 rgba(28,38,49,.06),0 18px 40px -18px rgba(28,38,49,.35);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --desk:#12181f; --card:#1e2733; --ink:#e9eef4; --muted:#9aa9b9; --rule:#2c3948; --red:#e86d64;
+    --accent:#7a9bff; --accent-ink:#0f1620; --hl:#6e5f10; --hl-ink:#fff4b8; --ok:#4cc38a; --no:#ef7d74; --chip:#18212b; --line:#344254;
+    --shadow:0 18px 40px -18px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --desk:#12181f; --card:#1e2733; --ink:#e9eef4; --muted:#9aa9b9; --rule:#2c3948; --red:#e86d64;
+  --accent:#7a9bff; --accent-ink:#0f1620; --hl:#6e5f10; --hl-ink:#fff4b8; --ok:#4cc38a; --no:#ef7d74; --chip:#18212b; --line:#344254;
+  --shadow:0 18px 40px -18px rgba(0,0,0,.7);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:var(--desk);color:var(--ink);font-family:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.5}
+.app{max-width:760px;margin:0 auto;padding:16px 16px 40px}
+header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+h1{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-weight:700;font-size:1.45rem;margin:0;letter-spacing:-.01em}
+.stats{color:var(--muted);font-size:.9rem}
+.stats b{color:var(--ink);font-weight:600}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px;margin-bottom:6px;scrollbar-width:thin}
+.chip{flex:0 0 auto;border:1px solid var(--line);background:var(--chip);color:var(--ink);padding:7px 12px;border-radius:999px;font:inherit;font-size:.85rem;cursor:pointer;white-space:nowrap}
+.chip small{color:var(--muted);margin-left:4px}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.chip[aria-pressed="true"] small{color:inherit;opacity:.85}
+.bar{height:6px;background:var(--rule);border-radius:99px;overflow:hidden;margin:2px 0 16px}
+.bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .3s}
+.pos-line{display:flex;justify-content:space-between;color:var(--muted);font-size:.85rem;margin-bottom:8px}
+
+.scene{perspective:1400px}
+.card{display:grid;position:relative;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.3,.7,.2,1);cursor:pointer;outline:none;border-radius:14px}
+.card.flipped{transform:rotateY(180deg)}
+.card:focus-visible{box-shadow:0 0 0 3px var(--accent)}
+.face{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden;min-height:430px;background-color:var(--card);border-radius:14px;box-shadow:var(--shadow);
+  background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 33px,var(--rule) 33px,var(--rule) 34px);
+  background-position:0 20px;padding:0 24px 22px;display:flex;flex-direction:column;overflow:hidden}
+.back{transform:rotateY(180deg)}
+.head{display:flex;justify-content:space-between;align-items:center;gap:12px;height:52px;margin:0 -24px;padding:0 24px;border-bottom:2px solid var(--red);background:var(--card);color:var(--muted);font-size:.85rem}
+.tag{border:1px solid var(--line);border-radius:6px;padding:1px 8px;color:var(--ink);background:var(--chip);font-size:.8rem}
+.body{flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px;padding-top:12px}
+.word{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-weight:700;font-size:clamp(2rem,8vw,3rem);line-height:1.1;margin:0;overflow-wrap:anywhere;background:var(--card);display:inline;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.ipa{display:flex;align-items:center;gap:10px;font-size:1.1rem;color:var(--accent)}
+.ipa span{background:var(--card);padding:0 4px}
+.spk{border:1px solid var(--line);background:var(--chip);color:var(--ink);width:38px;height:38px;border-radius:50%;cursor:pointer;display:grid;place-items:center;flex:0 0 auto}
+.spk:hover{border-color:var(--accent)}
+.spk:focus-visible{outline:3px solid var(--accent)}
+.lbl{font-size:.8rem;color:var(--muted);background:var(--card);display:inline-block;padding:0 4px}
+.ex{font-family:Newsreader,Georgia,serif;font-size:1.3rem;line-height:1.55;margin:0;background:var(--card);padding:2px 4px}
+.ex-vi{font-size:1rem;color:var(--muted);margin:0;line-height:1.55;background:var(--card);padding:2px 4px}
+mark{background:var(--hl);color:var(--hl-ink);padding:0 3px;border-radius:3px}
+.vi{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-weight:700;font-size:clamp(1.7rem,6.5vw,2.4rem);line-height:1.2;margin:0;background:var(--card);padding:2px 4px;display:inline}
+.vi-wrap{line-height:1.2}
+.small-word{font-weight:600;color:var(--ink)}
+.flip-hint{text-align:center;color:var(--muted);font-size:.8rem;margin-top:auto;padding-top:8px;background:var(--card)}
+.badge{align-self:flex-start;font-size:.8rem;color:var(--ok);border:1px solid var(--ok);border-radius:999px;padding:1px 10px;background:var(--card)}
+
+.controls{display:grid;grid-template-columns:1fr 1.4fr 1.4fr 1fr;gap:10px;margin-top:18px}
+.btn{font:inherit;font-weight:500;border:1px solid var(--line);background:var(--chip);color:var(--ink);padding:12px 8px;border-radius:12px;cursor:pointer;min-height:48px}
+.btn:hover{border-color:var(--accent)}
+.btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn.no{color:var(--no);border-color:var(--no)}
+.btn.ok{background:var(--ok);color:#fff;border-color:var(--ok)}
+.tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;justify-content:center}
+.tool{font:inherit;font-size:.85rem;border:1px dashed var(--line);background:transparent;color:var(--muted);padding:7px 12px;border-radius:999px;cursor:pointer}
+.tool[aria-pressed="true"]{color:var(--accent);border-color:var(--accent);border-style:solid}
+.tool:hover{color:var(--ink)}
+.keys{text-align:center;color:var(--muted);font-size:.78rem;margin-top:14px}
+.empty{background:var(--card);border-radius:14px;padding:40px 24px;text-align:center;box-shadow:var(--shadow)}
+.empty h2{font-family:"Bricolage Grotesque",system-ui,sans-serif;margin:0 0 8px}
+@media (max-width:520px){
+  .app{padding:12px 12px 32px}
+  .face{padding:0 18px 18px;min-height:460px}
+  .head{margin:0 -18px;padding:0 18px}
+  .controls{grid-template-columns:1fr 1fr;}
+  .controls .prev{order:3}.controls .next{order:4}
+  .keys{display:none}
+}
+@media (prefers-reduced-motion:reduce){.card{transition:none}.bar i{transition:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Flashcard Anh – Việt</h1>
+    <div class="stats" id="stats" aria-live="polite"></div>
+  </header>
+  <div class="chips" id="chips" role="group" aria-label="Chọn bộ từ"></div>
+  <div class="bar" aria-hidden="true"><i id="barfill"></i></div>
+  <div class="pos-line"><span id="counter"></span><span id="deckname"></span></div>
+  <div id="stage"></div>
+  <div class="controls" id="controls">
+    <button class="btn prev" id="prev">‹ Trước</button>
+    <button class="btn no" id="nope">Chưa thuộc</button>
+    <button class="btn ok" id="gotit">Đã thuộc</button>
+    <button class="btn next" id="next">Sau ›</button>
+  </div>
+  <div class="tools">
+    <button class="tool" id="shuffle" aria-pressed="false">Xáo trộn</button>
+    <button class="tool" id="onlyUnknown" aria-pressed="false">Chỉ ôn từ chưa thuộc</button>
+    <button class="tool" id="reset">Xóa tiến độ</button>
+  </div>
+  <div class="keys">Phím tắt: Space = lật · ← → = chuyển thẻ · 1 = chưa thuộc · 2 = đã thuộc · P = nghe phát âm</div>
+</div>
+
+<script>
+// Định dạng mỗi dòng: từ | loại từ | IPA (Mỹ) | nghĩa | ví dụ (*từ cần học*) | dịch ví dụ
+const DECKS = [
+{id:'rel1', name:'Quan hệ 1', raw:`
+acquaintance|n · get acquainted (v-phr) = làm quen|/əˈkweɪn.təns/|người quen|He isn't a close friend, just an *acquaintance* from my old job.|Anh ấy không phải bạn thân, chỉ là người quen từ chỗ làm cũ của tôi.
+classmate|n|/ˈklæs.meɪt/|bạn cùng lớp|My *classmate* sits next to me in English class every day.|Bạn cùng lớp ngồi cạnh tôi trong giờ tiếng Anh mỗi ngày.
+colleague|n|/ˈkɑː.liːɡ/|đồng nghiệp|I had lunch with a *colleague* from the marketing team.|Tôi ăn trưa với một đồng nghiệp ở nhóm marketing.
+neighbour|n|/ˈneɪ.bɚ/|hàng xóm|Our *neighbour* always says hello when we meet in the hallway.|Hàng xóm của chúng tôi luôn chào khi gặp ở hành lang.
+roommate|n|/ˈruːm.meɪt/|bạn cùng phòng|My *roommate* and I share the rent and the kitchen.|Bạn cùng phòng và tôi chia tiền nhà và dùng chung bếp.
+couple|n|/ˈkʌp.əl/|cặp đôi|That *couple* holds hands everywhere they go.|Cặp đôi đó nắm tay nhau ở mọi nơi họ đến.
+marriage|n|/ˈmer.ɪdʒ/|hôn nhân|Their *marriage* has lasted for thirty years.|Cuộc hôn nhân của họ đã kéo dài ba mươi năm.
+wedding|n|/ˈwed.ɪŋ/|đám cưới|We danced all night at their *wedding*.|Chúng tôi nhảy cả đêm tại đám cưới của họ.
+divorce|n|/dɪˈvɔːrs/|sự ly hôn|After the *divorce*, she moved back to her hometown.|Sau khi ly hôn, cô ấy chuyển về quê.
+date|n|/deɪt/|buổi hẹn hò|Tom is nervous because he has a *date* with Lisa tonight.|Tom hồi hộp vì tối nay anh ấy có buổi hẹn hò với Lisa.
+childhood friend|n phrase|/ˈtʃaɪld.hʊd frend/|bạn từ thời thơ ấu|She is my *childhood friend*; we played together when we were five.|Cô ấy là bạn thời thơ ấu của tôi; chúng tôi chơi cùng nhau từ năm tuổi.
+best friend|n phrase|/best frend/|bạn thân nhất|My *best friend* knows all my secrets.|Bạn thân nhất của tôi biết mọi bí mật của tôi.
+family member|n phrase|/ˈfæm.əl.i ˈmem.bɚ/|thành viên gia đình|Every *family member* came to my grandmother's birthday.|Mọi thành viên trong gia đình đều đến dự sinh nhật bà tôi.
+generation|n|/ˌdʒen.əˈreɪ.ʃən/|thế hệ|Three *generations* live in this house: grandparents, parents, and kids.|Ba thế hệ sống trong ngôi nhà này: ông bà, bố mẹ và con cái.
+connection|n|/kəˈnek.ʃən/|sự kết nối; mối liên hệ|I feel a strong *connection* with my sister.|Tôi cảm thấy có sự kết nối mạnh mẽ với chị gái.
+communication|n|/kəˌmjuː.nəˈkeɪ.ʃən/|sự giao tiếp|Good *communication* helps couples avoid misunderstandings.|Giao tiếp tốt giúp các cặp đôi tránh hiểu lầm.
+respect|n|/rɪˈspekt/|sự tôn trọng|Children should show *respect* to their elders.|Trẻ em nên thể hiện sự tôn trọng với người lớn tuổi.
+understanding|n|/ˌʌn.dɚˈstæn.dɪŋ/|sự thấu hiểu|Thank you for your *understanding* when I was late.|Cảm ơn bạn đã thấu hiểu khi tôi đến muộn.
+argument|n|/ˈɑːr.ɡjə.mənt/|cuộc tranh cãi|They had an *argument* about who should wash the dishes.|Họ đã cãi nhau về việc ai nên rửa bát.
+conflict|n|/ˈkɑːn.flɪkt/|sự xung đột|A *conflict* between the two brothers lasted for years.|Xung đột giữa hai anh em kéo dài nhiều năm.
+`},
+{id:'rel2', name:'Quan hệ 2', raw:`
+boyfriend|n|/ˈbɔɪ.frend/|bạn trai|Her *boyfriend* picked her up after work.|Bạn trai cô ấy đón cô sau giờ làm.
+girlfriend|n|/ˈɡɝːl.frend/|bạn gái|He bought flowers for his *girlfriend*.|Anh ấy mua hoa tặng bạn gái.
+husband|n|/ˈhʌz.bənd/|chồng|My *husband* cooks dinner on weekends.|Chồng tôi nấu bữa tối vào cuối tuần.
+wife|n|/waɪf/|vợ|His *wife* is a doctor at the city hospital.|Vợ anh ấy là bác sĩ ở bệnh viện thành phố.
+partner|n|/ˈpɑːrt.nɚ/|bạn đời / đối tác|She runs a small business with her *partner*.|Cô ấy điều hành một doanh nghiệp nhỏ cùng đối tác (bạn đời).
+relative|n|/ˈrel.ə.t̬ɪv/|họ hàng / người thân|Many *relatives* came to visit us during Tet.|Nhiều họ hàng đến thăm chúng tôi dịp Tết.
+relationship|n|/rɪˈleɪ.ʃən.ʃɪp/|mối quan hệ|They have a very healthy *relationship*.|Họ có một mối quan hệ rất lành mạnh.
+friendship|n|/ˈfrend.ʃɪp/|tình bạn|Our *friendship* started in primary school.|Tình bạn của chúng tôi bắt đầu từ thời tiểu học.
+get married|v phrase|/ɡet ˈmer.id/|kết hôn|They plan to *get married* next spring.|Họ dự định kết hôn vào mùa xuân tới.
+fall in love|v phrase|/fɑːl ɪn lʌv/|yêu / phải lòng|I *fell in love* with her the moment we met.|Tôi phải lòng cô ấy ngay khoảnh khắc chúng tôi gặp nhau.
+break up|phrasal v|/breɪk ʌp/|chia tay|They *broke up* after two years together.|Họ chia tay sau hai năm bên nhau.
+argue|v|/ˈɑːr.ɡjuː/|tranh cãi|Please don't *argue* in front of the children.|Làm ơn đừng tranh cãi trước mặt bọn trẻ.
+trust|n, v|/trʌst/|sự tin tưởng; tin tưởng|I *trust* her because she never lies.|Tôi tin cô ấy vì cô ấy không bao giờ nói dối.
+support|n, v|/səˈpɔːrt/|hỗ trợ; ủng hộ|My parents *support* my decision to study abroad.|Bố mẹ ủng hộ quyết định đi du học của tôi.
+care for|phrasal v|/ker fɔːr/|quan tâm, chăm sóc|She *cares for* her sick mother every day.|Cô ấy chăm sóc người mẹ ốm của mình mỗi ngày.
+close|adj|/kloʊs/|thân thiết|We are *close* friends; we talk every day.|Chúng tôi là bạn thân thiết; ngày nào cũng nói chuyện.
+friendly|adj|/ˈfrend.li/|thân thiện|The staff here are very *friendly*.|Nhân viên ở đây rất thân thiện.
+kind|adj|/kaɪnd/|tốt bụng|It was *kind* of you to help me.|Bạn thật tốt bụng khi giúp tôi.
+honest|adj|/ˈɑː.nɪst/|trung thực|Be *honest* with me: did you break the window?|Hãy thành thật với tôi: bạn làm vỡ cửa sổ phải không?
+reliable|adj|/rɪˈlaɪ.ə.bəl/|đáng tin cậy|He is *reliable*; he always finishes his work on time.|Anh ấy đáng tin cậy; luôn hoàn thành công việc đúng hạn.
+`},
+{id:'rel3', name:'Từ tăng cường', raw:`
+get along (with)|phrasal v|/ˌɡet əˈlɑːŋ/|hòa hợp với|I *get along* well with my coworkers.|Tôi hòa hợp với các đồng nghiệp.
+supportive|adj|/səˈpɔːr.t̬ɪv/|hay ủng hộ|My teacher is very *supportive* of my ideas.|Giáo viên của tôi rất ủng hộ ý tưởng của tôi.
+rely on|phrasal v|/rɪˈlaɪ ɑːn/|dựa vào, tin cậy vào|You can *rely on* me; I won't let you down.|Bạn có thể tin cậy vào tôi; tôi sẽ không làm bạn thất vọng.
+confident|adj|/ˈkɑːn.fə.dənt/|tự tin|She felt *confident* before the interview.|Cô ấy cảm thấy tự tin trước buổi phỏng vấn.
+companion|n|/kəmˈpæn.jən/|người bạn đồng hành|The dog is her loyal *companion* on long walks.|Chú chó là người bạn đồng hành trung thành của cô trong những chuyến đi bộ dài.
+`},
+{id:'places', name:'Địa điểm', raw:`
+a clothes store|noun phrase|/ə kloʊðz stɔːr/|cửa hàng quần áo|I bought a new jacket at *a clothes store*.|Tôi mua một chiếc áo khoác mới ở cửa hàng quần áo.
+an electronics store|noun phrase|/ən ɪˌlekˈtrɑː.nɪks stɔːr/|cửa hàng đồ điện tử|They sell phones and laptops at *an electronics store*.|Họ bán điện thoại và laptop ở cửa hàng đồ điện tử.
+a fire station|noun phrase|/ə ˈfaɪ.ɚ ˌsteɪ.ʃən/|trạm cứu hỏa|Firefighters wait at *a fire station* for emergency calls.|Lính cứu hỏa chờ các cuộc gọi khẩn cấp tại trạm cứu hỏa.
+a police station|noun phrase|/ə pəˈliːs ˌsteɪ.ʃən/|đồn cảnh sát|He reported the stolen bike at *a police station*.|Anh ấy trình báo chiếc xe đạp bị trộm ở đồn cảnh sát.
+a shoe store|noun phrase|/ə ʃuː stɔːr/|cửa hàng giày|I tried on sneakers at *a shoe store*.|Tôi thử giày thể thao ở cửa hàng giày.
+a toy store|noun phrase|/ə tɔɪ stɔːr/|cửa hàng đồ chơi|The children ran into *a toy store* to look at the dolls and robots.|Bọn trẻ chạy vào cửa hàng đồ chơi để xem búp bê và rô-bốt.
+a dry cleaners|noun phrase|/ə ˌdraɪ ˈkliː.nɚz/|tiệm giặt khô|I took my suit to *a dry cleaners* to remove the stain.|Tôi mang bộ vest đến tiệm giặt khô để tẩy vết bẩn.
+a gas station|noun phrase|/ə ˈɡæs ˌsteɪ.ʃən/|trạm xăng|We stopped at *a gas station* to fill up the car.|Chúng tôi dừng ở trạm xăng để đổ đầy bình.
+a hotel|noun|/ə hoʊˈtel/|khách sạn|We booked *a hotel* near the beach.|Chúng tôi đã đặt một khách sạn gần bãi biển.
+a supermarket|noun|/ə ˈsuː.pɚˌmɑːr.kɪt/|siêu thị|I buy vegetables, milk, and rice at *a supermarket*.|Tôi mua rau, sữa và gạo ở siêu thị.
+a convenience store|noun phrase|/ə kənˈviː.njəns stɔːr/|cửa hàng tiện lợi|I grabbed a snack at *a convenience store* at midnight.|Tôi mua đồ ăn vặt ở cửa hàng tiện lợi lúc nửa đêm.
+a travel agency|noun phrase|/ə ˈtræv.əl ˌeɪ.dʒən.si/|công ty/đại lý du lịch|She asked *a travel agency* to plan her trip to Japan.|Cô ấy nhờ một công ty du lịch lên kế hoạch cho chuyến đi Nhật.
+a post office|noun phrase|/ə ˈpoʊst ˌɑː.fɪs/|bưu điện|I went to *a post office* to send a package.|Tôi đến bưu điện để gửi một bưu kiện.
+a taxi stand|noun phrase|/ə ˈtæk.si stænd/|điểm đỗ/điểm đón taxi|Wait at *a taxi stand* and a cab will take you to the airport.|Hãy đợi ở điểm đón taxi và sẽ có xe đưa bạn ra sân bay.
+a grocery store|noun phrase|/ə ˈɡroʊ.sɚ.i stɔːr/|cửa hàng tạp hóa|I picked up eggs and bread at *a grocery store*.|Tôi mua trứng và bánh mì ở cửa hàng tạp hóa.
+a café / a coffee shop|noun phrase|/ə kæˈfeɪ/ · /ə ˈkɑː.fi ʃɑːp/|quán cà phê|We met at *a café* and ordered two coffees.|Chúng tôi gặp nhau ở quán cà phê và gọi hai ly cà phê.
+an Internet café / a cybercafé|noun phrase|/ən ˈɪn.t̬ɚ.net kæˈfeɪ/ · /ə ˈsaɪ.bɚ.kæˌfeɪ/|quán net, quán Internet|Some students play online games at *an Internet café*.|Một số học sinh chơi game online ở quán net.
+`},
+{id:'jobs', name:'Nghề nghiệp', raw:`
+a teacher|noun|/ə ˈtiː.tʃɚ/|giáo viên|*A teacher* explains the lesson to the class.|Giáo viên giảng bài cho cả lớp.
+a student|noun|/ə ˈstuː.dənt/|học sinh, sinh viên|*A student* is studying for the exam in the library.|Một học sinh đang ôn thi trong thư viện.
+an architect|noun|/ən ˈɑːr.kɪ.tekt/|kiến trúc sư|*An architect* designs buildings and houses.|Kiến trúc sư thiết kế các tòa nhà và nhà ở.
+an actor|noun|/ən ˈæk.tɚ/|diễn viên|*An actor* played the main role in the film.|Một diễn viên đã đóng vai chính trong bộ phim.
+an athlete|noun|/ən ˈæθ.liːt/|vận động viên|*An athlete* trains every day to win a gold medal.|Vận động viên tập luyện mỗi ngày để giành huy chương vàng.
+a musician|noun|/ə mjuˈzɪʃ.ən/|nhạc sĩ|*A musician* plays the guitar on stage.|Một nhạc sĩ chơi guitar trên sân khấu.
+an artist|noun|/ən ˈɑːr.t̬ɪst/|họa sĩ, nghệ sĩ|*An artist* painted a beautiful landscape.|Một họa sĩ đã vẽ một bức tranh phong cảnh tuyệt đẹp.
+a banker|noun|/ə ˈbæŋ.kɚ/|nhân viên ngân hàng|*A banker* helps customers with loans and savings.|Nhân viên ngân hàng giúp khách hàng về khoản vay và tiền tiết kiệm.
+a singer|noun|/ə ˈsɪŋ.ɚ/|ca sĩ|*A singer* performed her new song at the concert.|Một ca sĩ đã biểu diễn bài hát mới tại buổi hòa nhạc.
+a flight attendant|noun|/ə flaɪt əˈten.dənt/|tiếp viên hàng không|*A flight attendant* served drinks on the plane.|Tiếp viên hàng không phục vụ đồ uống trên máy bay.
+an accountant|noun|/ən əˈkaʊn.tənt/|kế toán viên|*An accountant* checks the company's financial records.|Kế toán viên kiểm tra sổ sách tài chính của công ty.
+a bank teller|noun|/ə bæŋk ˈtel.ɚ/|giao dịch viên ngân hàng|*A bank teller* counted the cash and handed it to me.|Giao dịch viên đếm tiền mặt rồi đưa cho tôi.
+an electrician|noun|/ən ɪˌlekˈtrɪʃ.ən/|thợ điện|*An electrician* fixed the broken wires in our house.|Thợ điện sửa lại dây điện hỏng trong nhà chúng tôi.
+a florist|noun|/ə ˈflɔːr.ɪst/|người bán hoa|*A florist* arranged roses into a bouquet.|Người bán hoa cắm hoa hồng thành một bó.
+a gardener|noun|/ə ˈɡɑːrd.nɚ/|người làm vườn|*A gardener* waters the plants and cuts the grass.|Người làm vườn tưới cây và cắt cỏ.
+a grocery clerk|noun|/ə ˈɡroʊ.sɚ.i klɝːk/|nhân viên cửa hàng tạp hóa|*A grocery clerk* scanned my items at the register.|Nhân viên cửa hàng tạp hóa quét hàng của tôi ở quầy thu ngân.
+a hairdresser|noun|/ə ˈherˌdres.ɚ/|thợ làm tóc|*A hairdresser* cut and dyed my hair.|Thợ làm tóc cắt và nhuộm tóc cho tôi.
+a mechanic|noun|/ə məˈkæn.ɪk/|thợ sửa xe / thợ máy|*A mechanic* repaired my car's engine.|Thợ máy đã sửa động cơ xe của tôi.
+a pharmacist|noun|/ə ˈfɑːr.mə.sɪst/|dược sĩ|*A pharmacist* gave me medicine and explained how to take it.|Dược sĩ đưa thuốc cho tôi và giải thích cách uống.
+a professor|noun|/ə prəˈfes.ɚ/|giáo sư|*A professor* teaches and does research at a university.|Giáo sư giảng dạy và nghiên cứu ở trường đại học.
+a reporter|noun|/ə rɪˈpɔːr.t̬ɚ/|phóng viên|*A reporter* interviewed people at the scene of the accident.|Phóng viên phỏng vấn mọi người tại hiện trường vụ tai nạn.
+a salesperson|noun|/ə ˈseɪlzˌpɝː.sən/|nhân viên bán hàng|*A salesperson* showed me three different laptops.|Nhân viên bán hàng giới thiệu cho tôi ba chiếc laptop khác nhau.
+a travel agent|noun|/ə ˈtræv.əl ˌeɪ.dʒənt/|nhân viên đại lý du lịch|*A travel agent* booked our flights and hotel.|Nhân viên đại lý du lịch đã đặt vé máy bay và khách sạn cho chúng tôi.
+a secretary|noun|/ə ˈsek.rə.ter.i/|thư ký|*A secretary* answers phone calls and schedules meetings.|Thư ký trả lời điện thoại và sắp xếp lịch họp.
+a server / a waiter|noun|/ə ˈsɝː.vɚ/ · /ə ˈweɪ.t̬ɚ/|nhân viên phục vụ / bồi bàn nam|*A server* brought us the menu and took our order.|Nhân viên phục vụ mang thực đơn đến và ghi món cho chúng tôi.
+a nurse|noun|/ə nɝːs/|y tá / điều dưỡng|*A nurse* takes care of patients in the hospital.|Y tá chăm sóc bệnh nhân trong bệnh viện.
+a lawyer|noun|/ə ˈlɔɪ.ɚ/|luật sư|*A lawyer* defended him in court.|Luật sư đã bào chữa cho anh ấy trước tòa.
+waitress|noun|/ˈweɪ.trəs/|bồi bàn nữ|The *waitress* brought me a glass of water.|Cô bồi bàn mang cho tôi một ly nước.
+actress|noun|/ˈæk.trəs/|nữ diễn viên|The *actress* won an award for her role.|Nữ diễn viên đã giành giải thưởng cho vai diễn của cô ấy.
+chef|noun|/ʃef/|đầu bếp|The *chef* cooked a delicious meal in the restaurant kitchen.|Đầu bếp nấu một bữa ăn ngon trong bếp nhà hàng.
+writer|noun|/ˈraɪ.t̬ɚ/|nhà văn, người viết|The *writer* is working on her third novel.|Nhà văn đang viết cuốn tiểu thuyết thứ ba.
+manager|noun|/ˈmæn.ɪ.dʒɚ/|quản lý|The *manager* leads the team and makes important decisions.|Quản lý dẫn dắt nhóm và đưa ra các quyết định quan trọng.
+scientist|noun|/ˈsaɪ.ən.tɪst/|nhà khoa học|The *scientist* does experiments in the laboratory.|Nhà khoa học làm thí nghiệm trong phòng thí nghiệm.
+doctor|noun|/ˈdɑːk.tɚ/|bác sĩ|The *doctor* examined the patient and prescribed medicine.|Bác sĩ khám bệnh nhân và kê đơn thuốc.
+engineer|noun|/ˌen.dʒəˈnɪr/|kỹ sư|The *engineer* designed a new bridge.|Kỹ sư đã thiết kế một cây cầu mới.
+photographer|noun|/fəˈtɑː.ɡrə.fɚ/|nhiếp ảnh gia|The *photographer* took beautiful pictures at the wedding.|Nhiếp ảnh gia chụp những bức ảnh đẹp tại đám cưới.
+pilot|noun|/ˈpaɪ.lət/|phi công|The *pilot* flew the plane safely through the storm.|Phi công đã lái máy bay an toàn qua cơn bão.
+`},
+{id:'work', name:'Công việc', raw:`
+deadline|noun|/ˈded.laɪn/|hạn chót|We have to finish the project before the *deadline*.|Chúng ta phải hoàn thành dự án trước hạn chót.
+appointment|noun|/əˈpɔɪnt.mənt/|cuộc hẹn|I have an *appointment* with a client.|Tôi có một cuộc hẹn với khách hàng.
+discuss|verb|/dɪˈskʌs/|thảo luận|We *discussed* the problem in the meeting.|Chúng tôi đã thảo luận vấn đề trong cuộc họp.
+suggest|verb|/səɡˈdʒest/|đề xuất|Anna *suggested* a new idea.|Anna đã đề xuất một ý tưởng mới.
+agree|verb|/əˈɡriː/|đồng ý|Everyone *agreed* with the plan.|Mọi người đều đồng ý với kế hoạch.
+disagree|verb|/ˌdɪs.əˈɡriː/|không đồng ý|John *disagreed* with his colleague.|John không đồng ý với đồng nghiệp của anh ấy.
+mistake|noun|/mɪˈsteɪk/|lỗi, sai sót|I made a *mistake* in the report.|Tôi đã mắc một lỗi trong báo cáo.
+responsible|adjective|/rɪˈspɑːn.sə.bəl/|chịu trách nhiệm|Sarah is *responsible* for the project.|Sarah chịu trách nhiệm về dự án.
+solution|noun|/səˈluː.ʃən/|giải pháp|We need to find a *solution* quickly.|Chúng ta cần tìm ra giải pháp nhanh chóng.
+attend|v|/əˈtend/|tham dự|I *attended* an important meeting yesterday.|Hôm qua tôi đã tham dự một cuộc họp quan trọng.
+cancel|v|/ˈkæn.səl/|hủy|The manager *cancelled* the meeting.|Quản lý đã hủy cuộc họp.
+arrange|v|/əˈreɪndʒ/|sắp xếp|She *arranged* a meeting with the client.|Cô ấy đã sắp xếp một cuộc họp với khách hàng.
+confirm|v|/kənˈfɝːm/|xác nhận|Please *confirm* the meeting time.|Vui lòng xác nhận thời gian họp.
+contact|v/n|/ˈkɑːn.tækt/|liên hệ; người liên hệ|I need to *contact* the customer.|Tôi cần liên hệ với khách hàng.
+customer|n|/ˈkʌs.tə.mɚ/|khách hàng|The *customer* complained about the service.|Khách hàng đã phàn nàn về dịch vụ.
+client|n|/ˈklaɪ.ənt/|khách hàng / đối tác|We have an important *client* visiting today.|Hôm nay chúng tôi có một khách hàng quan trọng đến thăm.
+project|n|/ˈprɑː.dʒekt/|dự án|Our team is working on a new *project*.|Nhóm chúng tôi đang làm một dự án mới.
+task|n|/tæsk/|nhiệm vụ|I have several *tasks* to finish today.|Hôm nay tôi có vài nhiệm vụ cần hoàn thành.
+priority|n|/praɪˈɔːr.ə.t̬i/|việc ưu tiên|This task is our top *priority*.|Nhiệm vụ này là ưu tiên hàng đầu của chúng ta.
+feedback|n|/ˈfiːd.bæk/|phản hồi, nhận xét|My manager gave me some useful *feedback*.|Quản lý đã cho tôi vài nhận xét hữu ích.
+complain|v|/kəmˈpleɪn/|phàn nàn|The customer *complained* about the delay.|Khách hàng phàn nàn về sự chậm trễ.
+apologize|v|/əˈpɑː.lə.dʒaɪz/|xin lỗi|He *apologized* for being late.|Anh ấy xin lỗi vì đến muộn.
+explain|v|/ɪkˈspleɪn/|giải thích|She *explained* the problem to her manager.|Cô ấy giải thích vấn đề cho quản lý.
+improve|v|/ɪmˈpruːv/|cải thiện|We need to *improve* our communication.|Chúng ta cần cải thiện khả năng giao tiếp.
+deal with|phrasal v|/diːl wɪð/|xử lý, giải quyết|She knows how to *deal with* difficult customers.|Cô ấy biết cách xử lý những khách hàng khó tính.
+handle|v|/ˈhæn.dəl/|xử lý|Tom *handled* the problem very well.|Tom đã xử lý vấn đề rất tốt.
+opportunity|n|/ˌɑː.pɚˈtuː.nə.t̬i/|cơ hội|The project gave me an *opportunity* to learn.|Dự án đã cho tôi cơ hội để học hỏi.
+cooperate|v|/koʊˈɑː.pɚ.eɪt/|hợp tác|Our team *cooperated* to solve the problem.|Nhóm chúng tôi đã hợp tác để giải quyết vấn đề.
+gossip|n/v|/ˈɡɑː.sɪp/|chuyện phiếm; nói chuyện phiếm|Some employees like to *gossip* during lunch.|Một số nhân viên thích buôn chuyện trong giờ ăn trưa.
+solve a problem|verb phrase|/sɑːlv ə ˈprɑː.bləm/|giải quyết vấn đề|We need to *solve the problem* quickly.|Chúng ta cần giải quyết vấn đề nhanh chóng.
+problem-solving skill|noun phrase|/ˈprɑː.bləm ˌsɑːl.vɪŋ skɪl/|kỹ năng giải quyết vấn đề|Good *problem-solving skills* are important at work.|Kỹ năng giải quyết vấn đề tốt rất quan trọng ở nơi làm việc.
+town square|noun phrase|/taʊn skwer/|quảng trường thị trấn|They met in the *town square* after work.|Họ gặp nhau ở quảng trường thị trấn sau giờ làm.
+describe|v|/dɪˈskraɪb/|mô tả|Can you *describe* what happened at the office?|Bạn có thể mô tả chuyện đã xảy ra ở văn phòng không?
+`},
+{id:'misc', name:'Cụm hay gặp', raw:`
+side job|noun|/ˈsaɪd dʒɑːb/|công việc làm thêm, nghề tay trái|He drives for a delivery app as a *side job*.|Anh ấy chạy xe giao hàng như một công việc làm thêm.
+consider|verb|/kənˈsɪd.ɚ/|cân nhắc, xem xét|I'm *considering* changing my job.|Tôi đang cân nhắc việc đổi việc.
+strict|adj|/strɪkt/|nghiêm khắc, nghiêm ngặt|Our boss is very *strict* about deadlines.|Sếp chúng tôi rất nghiêm khắc về hạn chót.
+work remotely|verb phrase|/wɝːk rɪˈmoʊt.li/|làm việc từ xa|I *work remotely* from home three days a week.|Tôi làm việc từ xa tại nhà ba ngày mỗi tuần.
+glad to hear that|phrase|/ɡlæd tə hɪr ðæt/|rất vui khi nghe điều đó|You passed the exam? I'm *glad to hear that*!|Bạn đã đậu kỳ thi à? Tôi rất vui khi nghe điều đó!
+Nobody is happy all the time.|sentence|/ˈnoʊ.bɑː.di ɪz ˈhæp.i ɑːl ðə taɪm/|Không ai lúc nào cũng hạnh phúc.|Don't be hard on yourself for feeling sad. *Nobody is happy all the time.*|Đừng quá khắt khe với bản thân vì cảm thấy buồn. Không ai lúc nào cũng hạnh phúc.
+optimistic|adj|/ˌɑːp.təˈmɪs.tɪk/|lạc quan|She stays *optimistic* even when things go wrong.|Cô ấy luôn lạc quan ngay cả khi mọi thứ không suôn sẻ.
+hire|verb|/haɪr/|tuyển dụng; thuê ai làm việc|The company plans to *hire* ten new employees.|Công ty dự định tuyển mười nhân viên mới.
+mix and match|phrase|/ˌmɪks ən ˈmætʃ/|phối hợp, phối đồ|You can *mix and match* these shirts and pants.|Bạn có thể phối những chiếc áo và quần này với nhau.
+formal|adj|/ˈfɔːr.məl/|trang trọng, chính thức|You should wear *formal* clothes to the interview.|Bạn nên mặc trang phục trang trọng khi đi phỏng vấn.
+informal|adj|/ɪnˈfɔːr.məl/|thân mật, không trang trọng|We chatted in an *informal* way, like old friends.|Chúng tôi trò chuyện thân mật như những người bạn cũ.
+pretty + adj|adv|/ˈprɪt̬.i/|khá / tương đối + tính từ|The test was *pretty* difficult, but I passed.|Bài kiểm tra khá khó, nhưng tôi đã đậu.
+hilarious|adj|/hɪˈler.i.əs/|cực kỳ hài hước, rất buồn cười|The comedian was *hilarious*; we laughed all night.|Diễn viên hài cực kỳ hài hước; chúng tôi cười suốt đêm.
+adorable|adj|/əˈdɔːr.ə.bəl/|đáng yêu, dễ thương|Look at that *adorable* puppy!|Nhìn chú cún đáng yêu kia kìa!
+foreigner|noun|/ˈfɔːr.ə.nɚ/|người nước ngoài|Many *foreigners* visit Ha Long Bay every year.|Nhiều người nước ngoài đến thăm vịnh Hạ Long mỗi năm.
+fancy|adj|/ˈfæn.si/|sang trọng, cầu kỳ; thời thượng|We had dinner at a *fancy* restaurant with candles and live music.|Chúng tôi ăn tối ở một nhà hàng sang trọng có nến và nhạc sống.
+give someone a compliment|phrase|/ɡɪv ˈsʌm.wʌn ə ˈkɑːm.plə.mənt/|dành lời khen cho ai|He *gave me a compliment* on my new haircut.|Anh ấy khen kiểu tóc mới của tôi.
+`},
+{id:'look', name:'Ngoại hình', raw:`
+attractive|adj · B1|/əˈtræk.tɪv/|hấp dẫn, ưa nhìn|She is an *attractive* woman with a warm smile.|Cô ấy là người phụ nữ ưa nhìn với nụ cười ấm áp.
+good-looking|adj · B1|/ˌɡʊdˈlʊk.ɪŋ/|đẹp trai/xinh, ưa nhìn|He's a *good-looking* guy; everyone notices him.|Anh ấy là chàng trai ưa nhìn; ai cũng để ý.
+handsome|adj · B1|/ˈhæn.səm/|đẹp trai|The *handsome* actor smiled at the fans.|Nam diễn viên đẹp trai mỉm cười với người hâm mộ.
+pretty|adj · B1|/ˈprɪt̬.i/|xinh, đẹp|She wore a *pretty* dress to the party.|Cô ấy mặc một chiếc váy xinh đến bữa tiệc.
+cute|adj · B1|/kjuːt/|dễ thương|The baby is so *cute* when she laughs.|Em bé thật dễ thương khi cười.
+adorable|adj · B1|/əˈdɔːr.ə.bəl/|cực kỳ đáng yêu|The *adorable* kitten fell asleep in my hands.|Chú mèo con đáng yêu ngủ thiếp đi trong tay tôi.
+slim|adj · B1|/slɪm/|mảnh mai, thon|He lost weight and now looks *slim*.|Anh ấy giảm cân và giờ trông thon gọn.
+fit|adj · B1|/fɪt/|cân đối, khỏe mạnh|She runs every morning, so she stays *fit*.|Cô ấy chạy bộ mỗi sáng nên giữ được vóc dáng khỏe mạnh.
+well-built|adj · B2|/ˌwelˈbɪlt/|có vóc dáng khỏe, cân đối|The *well-built* man lifted the heavy box easily.|Người đàn ông vóc dáng khỏe nhấc chiếc hộp nặng một cách dễ dàng.
+slender|adj · B2|/ˈslen.dɚ/|thanh mảnh|The dancer has *slender* arms and legs.|Vũ công có đôi tay và chân thanh mảnh.
+petite|adj · B2|/pəˈtiːt/|nhỏ nhắn|She is *petite*, only 1.50 meters tall.|Cô ấy nhỏ nhắn, chỉ cao 1,50 mét.
+muscular|adj · B2|/ˈmʌs.kjə.lɚ/|cơ bắp, lực lưỡng|He has a *muscular* body from years of gym training.|Anh ấy có thân hình cơ bắp nhờ nhiều năm tập gym.
+broad-shouldered|adj · B2|/ˌbrɑːdˈʃoʊl.dɚd/|vai rộng|A *broad-shouldered* man blocked the door.|Một người đàn ông vai rộng chắn ngay cửa.
+tanned skin|n phrase · B1–B2|/tænd skɪn/|làn da rám nắng|After the beach holiday, she had *tanned skin*.|Sau kỳ nghỉ ở biển, cô ấy có làn da rám nắng.
+fair skin|n phrase · B1–B2|/fer skɪn/|làn da trắng/sáng|People with *fair skin* should wear sunscreen.|Người có làn da sáng nên bôi kem chống nắng.
+pale skin|n phrase · B1–B2|/peɪl skɪn/|làn da nhợt/nhạt|He looked sick, with *pale skin* and tired eyes.|Anh ấy trông ốm yếu, da nhợt nhạt và mắt mệt mỏi.
+round face|n phrase · B1|/raʊnd feɪs/|khuôn mặt tròn|The baby has a *round face* and chubby cheeks.|Em bé có khuôn mặt tròn và đôi má phúng phính.
+square face|n phrase · B1|/skwer feɪs/|khuôn mặt vuông|He has a *square face* with a strong jaw.|Anh ấy có khuôn mặt vuông với đường hàm chắc khỏe.
+oval face|n phrase · B1–B2|/ˈoʊ.vəl feɪs/|khuôn mặt trái xoan|An *oval face* suits most hairstyles.|Khuôn mặt trái xoan hợp với hầu hết các kiểu tóc.
+heart-shaped face|n phrase · B2|/ˈhɑːrt.ʃeɪpt feɪs/|khuôn mặt hình trái tim|She has a *heart-shaped face*: a wide forehead and a pointed chin.|Cô ấy có khuôn mặt hình trái tim: trán rộng và cằm nhọn.
+sharp features|n phrase · B2|/ʃɑːrp ˈfiː.tʃɚz/|đường nét khuôn mặt sắc nét|The model has *sharp features* and a straight nose.|Người mẫu có đường nét khuôn mặt sắc sảo và sống mũi thẳng.
+delicate features|n phrase · B2|/ˈdel.ɪ.kət ˈfiː.tʃɚz/|đường nét thanh tú|The girl has *delicate features*, like a porcelain doll.|Cô gái có đường nét thanh tú như búp bê sứ.
+high cheekbones|n phrase · B2|/haɪ ˈtʃiːk.boʊnz/|gò má cao|*High cheekbones* give her face an elegant look.|Gò má cao mang lại cho gương mặt cô ấy vẻ thanh lịch.
+thick eyebrows|n phrase · B1|/θɪk ˈaɪ.braʊz/|lông mày rậm|He has *thick eyebrows* that make him look serious.|Anh ấy có lông mày rậm khiến trông nghiêm nghị.
+long eyelashes|n phrase · B1|/lɔːŋ ˈaɪ.læ.ʃɪz/|lông mi dài|She has *long eyelashes* that curl upward.|Cô ấy có hàng mi dài cong lên.
+straight hair|n phrase · B1|/streɪt her/|tóc thẳng|*Straight hair* falls down flat without any curls.|Tóc thẳng rủ xuống phẳng, không có lọn xoăn nào.
+curly hair|n phrase · B1|/ˈkɝː.li her/|tóc xoăn|My sister has *curly hair* that bounces when she walks.|Chị tôi có mái tóc xoăn nảy lên khi đi bộ.
+wavy hair|n phrase · B1|/ˈweɪ.vi her/|tóc gợn sóng|*Wavy hair* is between straight and curly.|Tóc gợn sóng nằm giữa tóc thẳng và tóc xoăn.
+shoulder-length hair|n phrase · B2|/ˈʃoʊl.dɚ leŋθ her/|tóc dài ngang vai|She tied her *shoulder-length hair* in a ponytail.|Cô ấy buộc mái tóc ngang vai thành đuôi ngựa.
+well-dressed|adj · B2|/ˌwelˈdrest/|ăn mặc đẹp/chỉn chu|He always looks *well-dressed* in a neat suit and tie.|Anh ấy luôn ăn mặc chỉn chu với bộ vest và cà vạt gọn gàng.
+`},
+{id:'phr', name:'Cụm động từ & tài chính', raw:`
+Count on me|v phrase|/kaʊnt ɑːn miː/|Trông cậy vào tôi, tin tưởng tôi|You can *count on me*.|Bạn có thể trông cậy vào tôi.
+Take a day off|phrase|/teɪk ə deɪ ɔːf/|Nghỉ một ngày|I'm going to *take a day off* tomorrow.|Tôi sẽ nghỉ một ngày vào ngày mai.
+Work remotely|v phrase|/wɝːk rɪˈmoʊt.li/|Làm việc từ xa|Many employees *work remotely*.|Nhiều nhân viên làm việc từ xa.
+Insurance|n|/ɪnˈʃʊr.əns/|Bảo hiểm|Health *insurance* is important.|Bảo hiểm y tế rất quan trọng.
+Lose all of it|v phrase|/luːz ɔːl əv ɪt/|Mất hết, mất toàn bộ|He invested all his money and *lost all of it*.|Anh ấy đầu tư toàn bộ tiền và mất hết.
+Hold stocks|v phrase|/hoʊld stɑːks/|Nắm giữ cổ phiếu|She *holds stocks* in several companies.|Cô ấy nắm giữ cổ phiếu của một số công ty.
+Decrease|v / n|/dɪˈkriːs/ (v) · /ˈdiː.kriːs/ (n)|Giảm, sự giảm|The unemployment rate *decreased*.|Tỷ lệ thất nghiệp đã giảm.
+Increase|v / n|/ɪnˈkriːs/ (v) · /ˈɪn.kriːs/ (n)|Tăng, sự tăng|The price of fuel *increased* significantly.|Giá nhiên liệu tăng đáng kể.
+In charge of|adj phrase|/ɪn tʃɑːrdʒ əv/|Phụ trách, chịu trách nhiệm về|She is *in charge of* the project.|Cô ấy phụ trách dự án.
+Responsible for|adj phrase|/rɪˈspɑːn.sə.bəl fɔːr/|Chịu trách nhiệm về|He is *responsible for* managing the team.|Anh ấy chịu trách nhiệm quản lý nhóm.
+Pour money into|v phrase|/pɔːr ˈmʌn.i ˈɪn.tuː/|Đổ/rót rất nhiều tiền vào|The government *poured money into* education.|Chính phủ đã đổ rất nhiều tiền vào giáo dục.
+Good reputation|n phrase|/ɡʊd ˌrep.jəˈteɪ.ʃən/|Danh tiếng tốt|The university has a *good reputation*.|Trường đại học có danh tiếng tốt.
+Fuel|n / v|/ˈfjuː.əl/|Nhiên liệu; tiếp nhiên liệu / thúc đẩy|The price of *fuel* has increased.|Giá nhiên liệu đã tăng.
+Gambling|n|/ˈɡæm.blɪŋ/|Cờ bạc, việc đánh bạc|*Gambling* can cause serious financial problems.|Cờ bạc có thể gây ra những vấn đề tài chính nghiêm trọng.
+Punctuality|n|/ˌpʌŋk.tʃuˈæl.ə.t̬i/|Sự đúng giờ|*Punctuality* is important in the workplace.|Sự đúng giờ rất quan trọng ở nơi làm việc.
+Punish|v|/ˈpʌn.ɪʃ/|Trừng phạt|People who break the law should be *punished*.|Những người vi phạm pháp luật nên bị trừng phạt.
+In the first year|phrase|/ɪn ðə fɝːst jɪr/|Trong năm đầu tiên|*In the first year*, students learn basic skills.|Trong năm đầu tiên, sinh viên học các kỹ năng cơ bản.
+`}
+];
+
+// ---------- Dữ liệu ----------
+const CARDS = [];
+DECKS.forEach(d => d.raw.split('\n').forEach(line => {
+  if (!line.trim()) return;
+  const p = line.split('|').map(s => s.trim());
+  CARDS.push({id: d.id + ':' + p[0], deck: d.id, w: p[0], pos: p[1], ipa: p[2], vi: p[3], ex: p[4], exvi: p[5]});
+}));
+const deckName = id => (DECKS.find(d => d.id === id) || {}).name || '';
+
+// ---------- Trạng thái ----------
+const KEY = 'flashcard_known_v1';
+let known = {};
+try { known = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { known = {}; }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(known)); } catch (e) {} }
+
+let deckId = 'all', onlyUnknown = false, shuffled = false, order = [], idx = 0, flipped = false, busy = false;
+
+const $ = id => document.getElementById(id);
+const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt = s => esc(s).replace(/\*(.+?)\*/g, '<mark>$1</mark>');
+const plain = s => s.replace(/\*/g, '');
+
+function shuffleArr(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+function build(resetIdx = true) {
+  let list = CARDS.filter(c => (deckId === 'all' || c.deck === deckId) && (!onlyUnknown || !known[c.id]));
+  order = shuffled ? shuffleArr(list.slice()) : list;
+  if (resetIdx) idx = 0;
+  if (idx >= order.length) idx = Math.max(0, order.length - 1);
+  flipped = false;
+  render();
+}
+
+function renderChips() {
+  const box = $('chips'); box.innerHTML = '';
+  const mk = (id, name) => {
+    const set = id === 'all' ? CARDS : CARDS.filter(c => c.deck === id);
+    const k = set.filter(c => known[c.id]).length;
+    const b = document.createElement('button');
+    b.className = 'chip'; b.setAttribute('aria-pressed', String(deckId === id));
+    b.innerHTML = esc(name) + '<small>' + k + '/' + set.length + '</small>';
+    b.onclick = () => { deckId = id; build(); };
+    box.appendChild(b);
+  };
+  mk('all', 'Tất cả');
+  DECKS.forEach(d => mk(d.id, d.name));
+}
+
+function speak(text) {
+  try {
+    if (!('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text.replace(/\+ adj/g, '').replace(/\(.*?\)/g, '').split(' / ')[0]);
+    u.lang = 'en-US'; u.rate = 0.9;
+    const v = speechSynthesis.getVoices().find(v => v.lang === 'en-US');
+    if (v) u.voice = v;
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+
+function render() {
+  renderChips();
+  const total = CARDS.filter(c => deckId === 'all' || c.deck === deckId);
+  const k = total.filter(c => known[c.id]).length;
+  $('stats').innerHTML = 'Đã thuộc <b>' + k + '</b>/' + total.length;
+  $('barfill').style.width = (total.length ? k / total.length * 100 : 0) + '%';
+  $('deckname').textContent = deckId === 'all' ? 'Tất cả bộ từ' : deckName(deckId);
+  const stage = $('stage');
+  const dis = order.length === 0;
+  ['prev','next','nope','gotit'].forEach(i => $(i).disabled = dis);
+  $('shuffle').setAttribute('aria-pressed', String(shuffled));
+  $('onlyUnknown').setAttribute('aria-pressed', String(onlyUnknown));
+  if (dis) {
+    $('counter').textContent = '';
+    stage.innerHTML = '<div class="empty"><h2>Bạn đã thuộc hết bộ này</h2><p>Không còn thẻ nào chưa thuộc. Tắt “Chỉ ôn từ chưa thuộc” hoặc chọn bộ từ khác để học tiếp.</p></div>';
+    return;
+  }
+  const c = order[idx];
+  $('counter').textContent = 'Thẻ ' + (idx + 1) + ' / ' + order.length;
+  stage.innerHTML =
+  '<div class="scene"><div class="card' + (flipped ? ' flipped' : '') + '" id="card" tabindex="0" role="button" aria-label="Thẻ từ vựng: ' + esc(c.w) + '. Nhấn để lật.">' +
+    '<div class="face front" aria-hidden="' + flipped + '">' +
+      '<div class="head"><span>' + esc(deckName(c.deck)) + '</span><span class="tag">' + esc(c.pos) + '</span></div>' +
+      '<div class="body">' +
+        '<div><h2 class="word">' + esc(c.w) + '</h2></div>' +
+        '<div class="ipa"><span>🇺🇸 ' + esc(c.ipa) + '</span><button class="spk" aria-label="Nghe phát âm" id="spk">🔊</button></div>' +
+        '<div><span class="lbl">Đoán nghĩa từ ví dụ</span><p class="ex">' + fmt(c.ex) + '</p></div>' +
+      '</div>' +
+      '<div class="flip-hint">Chạm để xem nghĩa</div>' +
+    '</div>' +
+    '<div class="face back" aria-hidden="' + !flipped + '">' +
+      '<div class="head"><span><span class="small-word">' + esc(c.w) + '</span> &nbsp;' + esc(c.ipa) + '</span><span class="tag">' + esc(c.pos) + '</span></div>' +
+      '<div class="body">' +
+        (known[c.id] ? '<span class="badge">✓ Đã thuộc</span>' : '') +
+        '<div class="vi-wrap"><h2 class="vi">' + esc(c.vi) + '</h2></div>' +
+        '<div><span class="lbl">Ví dụ</span><p class="ex">' + fmt(c.ex) + '</p><p class="ex-vi">' + esc(c.exvi) + '</p></div>' +
+      '</div>' +
+      '<div class="flip-hint">Chạm để quay lại</div>' +
+    '</div>' +
+  '</div></div>';
+  const card = $('card');
+  card.onclick = flip;
+  $('spk').onclick = e => { e.stopPropagation(); speak(c.w); };
+}
+
+function flip() {
+  if (!order.length) return;
+  flipped = !flipped;
+  const card = $('card'); if (card) card.classList.toggle('flipped', flipped);
+}
+
+function go(delta, thenFn) {
+  if (!order.length || busy) return;
+  const change = () => { if (thenFn) thenFn(); idx = (idx + delta + order.length) % order.length; flipped = false; busy = false; render(); };
+  if (flipped) {
+    busy = true; flipped = false;
+    const card = $('card'); if (card) card.classList.remove('flipped');
+    const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    setTimeout(change, reduce ? 0 : 280);
+  } else change();
+}
+
+function mark(val) {
+  if (!order.length) return;
+  const c = order[idx];
+  if (val) known[c.id] = 1; else delete known[c.id];
+  save();
+  if (onlyUnknown && val) {
+    // thẻ vừa thuộc sẽ rời khỏi danh sách ôn
+    const was = idx;
+    go(0, () => { order.splice(was, 1); idx = was; if (idx >= order.length) idx = 0; });
+    if (order.length === 0) { render(); }
+    return;
+  }
+  go(1);
+}
+
+$('prev').onclick = () => go(-1);
+$('next').onclick = () => go(1);
+$('nope').onclick = () => mark(false);
+$('gotit').onclick = () => mark(true);
+$('shuffle').onclick = () => { shuffled = !shuffled; build(); };
+$('onlyUnknown').onclick = () => { onlyUnknown = !onlyUnknown; build(); };
+$('reset').onclick = () => {
+  if (confirm('Xóa toàn bộ tiến độ “đã thuộc”?')) { known = {}; save(); onlyUnknown = false; build(); }
+};
+
+document.addEventListener('keydown', e => {
+  if (e.target.closest && e.target.closest('button') && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') {
+    if (e.key === ' ' || e.key === 'Enter') return; // để nút tự xử lý
+  }
+  if (e.key === ' ' || e.key === 'Enter') { if (e.target.id === 'card' || e.target === document.body) { e.preventDefault(); flip(); } }
+  else if (e.key === 'ArrowRight') go(1);
+  else if (e.key === 'ArrowLeft') go(-1);
+  else if (e.key === '1') mark(false);
+  else if (e.key === '2') mark(true);
+  else if (e.key === 'p' || e.key === 'P') { if (order[idx]) speak(order[idx].w); }
+});
+
+build();
+</script>
+</body>
+</html>
