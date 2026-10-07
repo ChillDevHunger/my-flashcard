@@ -25,7 +25,8 @@ jobs:
       - name: Stage static files
         run: |
           mkdir _site
-          cp index.html vocab-app.html CNAME _site/
+          cp vocab-app.html _site/index.html
+          cp CNAME _site/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
