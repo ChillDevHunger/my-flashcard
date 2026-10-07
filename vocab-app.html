@@ -642,6 +642,13 @@ function headAnswers(w) {
   });
   return out;
 }
+function viAnswers(vi) {
+  const nv = x => norm(String(x).replace(/đ/g, 'd').replace(/Đ/g, 'D'));
+  const out = new Set([nv(vi)]);
+  vi.split(/[\/,;]/).forEach(p => { out.add(nv(p)); out.add(nv(p.replace(/\(.*?\)/g, ''))); });
+  out.delete('');
+  return out;
+}
 const starred = c => (c.ex.match(/\*(.+?)\*/) || [, c.w])[1];
 
 // ---------- Lưu từ hay sai ----------
@@ -653,13 +660,14 @@ const weakCount = () => CARDS.filter(c => weak[c.id]).length;
 
 // ---------- Cài đặt ----------
 const MODES = [
-  {id:'mix',    name:'Tổng hợp',          desc:'Trộn cả 4 dạng bài bên dưới', wide:true},
+  {id:'mix',    name:'Tổng hợp',          desc:'Trộn cả 5 dạng bài bên dưới', wide:true},
   {id:'ev',     name:'Chọn nghĩa',        desc:'Thấy từ tiếng Anh, chọn nghĩa tiếng Việt'},
   {id:'ve',     name:'Chọn từ',           desc:'Thấy nghĩa tiếng Việt, chọn từ tiếng Anh'},
   {id:'cloze',  name:'Điền vào chỗ trống',desc:'Gõ từ còn thiếu trong câu ví dụ'},
-  {id:'listen', name:'Nghe và viết',      desc:'Nghe phát âm rồi gõ lại từ', needTTS:true}
+  {id:'listen', name:'Nghe và viết',      desc:'Nghe phát âm rồi gõ lại từ', needTTS:true},
+  {id:'listenvi', name:'Nghe và viết nghĩa', desc:'Nghe phát âm rồi gõ nghĩa tiếng Việt', needTTS:true}
 ];
-const MODE_LABEL = {ev:'Chọn nghĩa', ve:'Chọn từ', cloze:'Điền vào chỗ trống', listen:'Nghe và viết'};
+const MODE_LABEL = {ev:'Chọn nghĩa', ve:'Chọn từ', cloze:'Điền vào chỗ trống', listen:'Nghe và viết', listenvi:'Nghe và viết nghĩa'};
 const S = {mode:'mix', decks:new Set(DECKS.map(d => d.id)), count:20, weakOnly:false, fcUnknown:false};
 let inQuiz = false;
 let Q = null;
@@ -724,8 +732,8 @@ function makeOpts(c, t) {
 }
 function makeQ(c) {
   let t = S.mode;
-  if (t === 'mix') { const ts = ['ev', 've', 'cloze'].concat(hasTTS ? ['listen'] : []); t = ts[Math.floor(Math.random() * ts.length)]; }
-  if (t === 'listen' && !hasTTS) t = 'ev';
+  if (t === 'mix') { const ts = ['ev', 've', 'cloze'].concat(hasTTS ? ['listen', 'listenvi'] : []); t = ts[Math.floor(Math.random() * ts.length)]; }
+  if ((t === 'listen' || t === 'listenvi') && !hasTTS) t = 'ev';
   const q = {c, t};
   if (t === 'ev' || t === 've') q.opts = makeOpts(c, t);
   return q;
@@ -752,6 +760,9 @@ function renderQ() {
     const w = Math.max(4, Math.min(ans.length, 22)) * 0.62;
     body = '<p class="qsent">' + esc(c.ex.slice(0, m.index)) + '<span class="blank" style="width:' + w + 'em"></span>' + esc(c.ex.slice(m.index + m[0].length)) + '</p>' +
       '<div class="hint">Dịch: <b>' + esc(c.exvi) + '</b></div><div class="hint">Nghĩa của từ cần điền: <b>' + esc(c.vi) + '</b></div>' + typeHtml('Gõ từ còn thiếu…');
+  } else if (q.t === 'listenvi') {
+    body = '<div class="listen"><button class="spk big-spk" id="spk" aria-label="Nghe phát âm">🔊</button><button class="spk" id="slow">Nghe chậm</button></div>' +
+      '<div class="hint">Nghe từ tiếng Anh và gõ nghĩa tiếng Việt của từ đó.</div>' + typeHtml('Gõ nghĩa tiếng Việt…');
   } else {
     body = '<div class="listen"><button class="spk big-spk" id="spk" aria-label="Nghe phát âm">🔊</button><button class="spk" id="slow">Nghe chậm</button></div>' +
       '<div class="hint">Nghe và gõ lại từ tiếng Anh bạn nghe được. Nghĩa: <b>' + esc(c.vi) + '</b></div>' + typeHtml('Gõ từ bạn nghe được…');
@@ -771,7 +782,7 @@ function renderQ() {
     $('skip').onclick = () => answer('', true);
     $('inp').focus();
   }
-  if (q.t === 'listen') setTimeout(() => speak(c.w), 250);
+  if (q.t === 'listen' || q.t === 'listenvi') setTimeout(() => speak(c.w), 250);
   if (q.t === 'ev' && hasTTS) { /* không tự đọc để tránh gợi ý ngoài ý muốn */ }
 }
 function bindQuit() {
@@ -798,9 +809,11 @@ function answer(given, skipped) {
   if (q.t === 'ev' || q.t === 've') {
     ok = given === c.id;
   } else {
-    const g = norm(given);
+    const g = q.t === 'listenvi' ? norm(String(given).replace(/đ/g, 'd').replace(/Đ/g, 'D')) : norm(given);
     if (!g && !skipped) return;
-    if (q.t === 'cloze') {
+    if (q.t === 'listenvi') {
+      ok = viAnswers(c.vi).has(g);
+    } else if (q.t === 'cloze') {
       ok = g === norm(starred(c));
       if (!ok && g && headAnswers(c.w).has(g)) note = 'Bạn đã đúng từ gốc nhưng cần chia đúng dạng trong câu.';
     } else {
@@ -824,10 +837,10 @@ function answer(given, skipped) {
     $('check').disabled = true; $('skip').disabled = true;
   }
   const last = Q.i === Q.items.length - 1;
-  const correctText = q.t === 'cloze' ? starred(c) : c.w;
+  const correctText = q.t === 'cloze' ? starred(c) : q.t === 'listenvi' ? c.vi : c.w;
   $('fb').innerHTML =
     '<div class="fb ' + (ok ? 'right' : 'wrong') + '"><h3>' + (ok ? 'Chính xác!' : (skipped ? 'Đáp án đúng' : 'Chưa đúng')) + '</h3>' +
-    (!ok && (q.t === 'cloze' || q.t === 'listen') ? '<p>Đáp án: <b>' + esc(correctText) + '</b></p>' : '') +
+    (!ok && (q.t === 'cloze' || q.t === 'listen' || q.t === 'listenvi') ? '<p>Đáp án: <b>' + esc(correctText) + '</b></p>' : '') +
     (note ? '<p>' + esc(note) + '</p>' : '') +
     '<p><b>' + esc(c.w) + '</b> · ' + esc(c.ipa) + (hasTTS ? ' <button class="spk" id="spk2" aria-label="Nghe phát âm" style="min-height:34px;min-width:34px;padding:0 10px">🔊</button>' : '') + '</p>' +
     '<p>' + esc(c.vi) + '</p><p class="ex">' + fmt(c.ex) + '</p><p class="exvi">' + esc(c.exvi) + '</p>' +
