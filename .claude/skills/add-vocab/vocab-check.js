@@ -7,7 +7,7 @@ const fs = require('fs'), vm = require('vm');
 const file = process.env.VOCAB_FILE || 'vocab-app.html';
 const html = fs.readFileSync(file, 'utf8');
 const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]);
-const norm = s => s.trim().toLowerCase().replace(/\s+/g, ' ');
+const norm = s => s.trim().toLowerCase().replace(/\s+/g, ' ').replace(/^be /, '');
 const m = html.match(/const DECKS = \[[\s\S]*?\n\];/);
 if (!m) { console.error('DECKS not found'); process.exit(1); }
 const DECKS = vm.runInNewContext(m[0].replace('const DECKS =', 'DECKS =') + ';DECKS');
