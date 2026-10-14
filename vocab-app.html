@@ -174,6 +174,29 @@ body{margin:0;min-height:100%;background:var(--desk);color:var(--ink);font-famil
 .app{max-width:760px;margin:0 auto;padding:12px 16px 48px}
 .shell-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
 .brand{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-weight:700;font-size:1.25rem;letter-spacing:-.01em}
+#wl h1{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-weight:700;font-size:1.45rem;margin:0 0 12px;letter-spacing:-.01em}
+#wl .stats{color:var(--muted);font-size:.9rem;margin:4px 0 10px}
+#wl .stats b{color:var(--ink);font-weight:600}
+#wl .chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px;margin-bottom:6px;scrollbar-width:thin}
+#wl .chip{flex:0 0 auto;border:1px solid var(--line);background:var(--chip);color:var(--ink);padding:7px 12px;border-radius:999px;font:inherit;font-size:.85rem;cursor:pointer;white-space:nowrap}
+#wl .chip small{color:var(--muted);margin-left:4px}
+#wl .chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+#wl .chip[aria-pressed="true"] small{color:inherit;opacity:.85}
+#wl .chip:focus-visible,#wl .say:focus-visible,#wl .search:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+#wl .search{width:100%;font:inherit;font-size:.95rem;color:var(--ink);background:var(--chip);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px}
+#wl .wlist{list-style:none;margin:0;padding:0;background:var(--card);border-radius:14px;box-shadow:var(--shadow)}
+#wl .wlist li{display:flex;align-items:flex-start;gap:10px;padding:12px 16px;border-bottom:1px solid var(--rule)}
+#wl .wlist li:last-child{border-bottom:0}
+#wl .main{flex:1;min-width:0}
+#wl .w{font-weight:600;font-size:1.05rem;overflow-wrap:anywhere}
+#wl .pos{color:var(--muted);font-size:.85rem;margin-left:6px;overflow-wrap:anywhere}
+#wl .ipa{color:var(--muted);font-size:.9rem;margin-left:6px}
+#wl .vi{margin-top:2px;overflow-wrap:anywhere}
+#wl .dk{color:var(--muted);font-size:.8rem;margin-top:2px}
+#wl .badge{flex:0 0 auto;font-size:.75rem;border-radius:99px;padding:2px 8px;background:var(--ok-bg);color:var(--ok);white-space:nowrap}
+#wl .say{flex:0 0 auto;min-width:44px;min-height:44px;margin:-8px -8px -8px 0;border:0;background:transparent;color:var(--accent);font:inherit;font-size:1.1rem;cursor:pointer;border-radius:10px}
+#wl .empty{color:var(--muted);text-align:center;padding:28px 0}
+@media (max-width:520px){#wl .wlist li{padding:12px}}
 .tabs{display:inline-flex;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--chip)}
 .tabs button{font:inherit;font-weight:500;border:0;background:transparent;color:var(--ink);padding:10px 18px;cursor:pointer;min-height:44px}
 .tabs button+button{border-left:1px solid var(--line)}
@@ -191,6 +214,7 @@ body{margin:0;min-height:100%;background:var(--desk);color:var(--ink);font-famil
     <div class="tabs" role="tablist" aria-label="Chế độ học">
       <button role="tab" id="tab-fc" aria-selected="true" aria-controls="fc">Flashcard</button>
       <button role="tab" id="tab-pr" aria-selected="false" aria-controls="pr">Luyện tập</button>
+      <button role="tab" id="tab-wl" aria-selected="false" aria-controls="wl">Danh sách</button>
     </div>
   </div>
   <div id="fc" class="panel" role="tabpanel" aria-labelledby="tab-fc">
@@ -219,6 +243,13 @@ body{margin:0;min-height:100%;background:var(--desk);color:var(--ink);font-famil
   </div>
   <div id="pr" class="panel" role="tabpanel" aria-labelledby="tab-pr" hidden>
     <div id="view"></div>
+  </div>
+  <div id="wl" class="panel" role="tabpanel" aria-labelledby="tab-wl" hidden>
+    <h1>Danh sách từ</h1>
+    <div class="chips" id="wlChips" role="group" aria-label="Lọc theo chủ đề"></div>
+    <input class="search" id="wlSearch" type="search" placeholder="Tìm theo từ hoặc nghĩa…" aria-label="Tìm theo từ hoặc nghĩa" autocomplete="off">
+    <div class="stats" id="wlStats" aria-live="polite"></div>
+    <ul class="wlist" id="wlList"></ul>
   </div>
 </div>
 <script>
@@ -587,6 +618,7 @@ function renderChips() {
   DECKS.forEach(d => mk(d.id, d.name));
 }
 
+SHARED.speak = text => speak(text);
 function speak(text) {
   try {
     if (!('speechSynthesis' in window)) return;
@@ -986,21 +1018,66 @@ renderSetup();
 
 })();
 
+// ---------- Danh sách từ ----------
+(function () {
+const $ = id => document.getElementById(id);
+const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let deckId = 'all', q = '';
+
+function renderChips() {
+  const box = $('wlChips'); box.innerHTML = '';
+  const mk = (id, name) => {
+    const n = id === 'all' ? CARDS.length : CARDS.filter(c => c.deck === id).length;
+    const b = document.createElement('button');
+    b.className = 'chip'; b.setAttribute('aria-pressed', String(deckId === id));
+    b.innerHTML = esc(name) + '<small>' + n + '</small>';
+    b.onclick = () => { deckId = id; renderChips(); renderList(); };
+    box.appendChild(b);
+  };
+  mk('all', 'Tất cả');
+  DECKS.forEach(d => mk(d.id, d.name));
+}
+
+function renderList() {
+  const t = q.trim().toLowerCase();
+  const list = CARDS.filter(c => (deckId === 'all' || c.deck === deckId) &&
+    (!t || c.w.toLowerCase().includes(t) || c.vi.toLowerCase().includes(t)));
+  $('wlStats').innerHTML = 'Đang hiển thị <b>' + list.length + '</b> từ';
+  $('wlList').innerHTML = list.length ? list.map(c =>
+    '<li><div class="main"><div><span class="w">' + esc(c.w) + '</span><span class="pos">' + esc(c.pos) + '</span>' +
+    '<span class="ipa">' + esc(c.ipa) + '</span></div><div class="vi">' + esc(c.vi) + '</div>' +
+    (deckId === 'all' ? '<div class="dk">' + esc(deckName(c.deck)) + '</div>' : '') + '</div>' +
+    (SHARED.known[c.id] ? '<span class="badge">Đã thuộc</span>' : '') +
+    '<button class="say" data-w="' + esc(c.w) + '" aria-label="Nghe phát âm ' + esc(c.w) + '">🔊</button></li>').join('')
+    : '<li class="empty">Không có từ nào phù hợp.</li>';
+}
+
+$('wlList').onclick = e => {
+  const b = e.target.closest('.say');
+  if (b) SHARED.speak(b.dataset.w);
+};
+$('wlSearch').oninput = e => { q = e.target.value; renderList(); };
+window.WL = {refresh: () => { renderChips(); renderList(); }};
+})();
+
 // ---------- Chuyển tab ----------
-const tabBtns = {fc: document.getElementById('tab-fc'), pr: document.getElementById('tab-pr')};
+const tabBtns = {fc: document.getElementById('tab-fc'), pr: document.getElementById('tab-pr'), wl: document.getElementById('tab-wl')};
 function switchTab(t) {
   SHARED.tab = t;
   document.getElementById('fc').hidden = t !== 'fc';
   document.getElementById('pr').hidden = t !== 'pr';
+  document.getElementById('wl').hidden = t !== 'wl';
   Object.keys(tabBtns).forEach(k => tabBtns[k].setAttribute('aria-selected', String(k === t)));
   if (t === 'pr' && window.PR) window.PR.refresh();
+  if (t === 'wl' && window.WL) window.WL.refresh();
   try { localStorage.setItem('vocab_tab', t); } catch (e) {}
   window.scrollTo(0, 0);
 }
 SHARED.goPractice = id => { switchTab('pr'); window.PR.focusDeck(id); };
 tabBtns.fc.onclick = () => switchTab('fc');
 tabBtns.pr.onclick = () => switchTab('pr');
-let startTab = 'fc'; try { startTab = localStorage.getItem('vocab_tab') === 'pr' ? 'pr' : 'fc'; } catch (e) {}
+tabBtns.wl.onclick = () => switchTab('wl');
+let startTab = 'fc'; try { const st = localStorage.getItem('vocab_tab'); startTab = tabBtns[st] ? st : 'fc'; } catch (e) {}
 switchTab(startTab);
 
 </script>
