@@ -1171,6 +1171,7 @@ const replaceWith = (obj, src) => { Object.keys(obj).forEach(k => delete obj[k])
 async function mergeOnLogin() {
   const remote = await pull();
   let owner = null; try { owner = localStorage.getItem(OWNER_KEY); } catch (e) {}
+  if (owner && owner !== user.id) { replaceWith(SHARED.known, null); replaceWith(SHARED.weak, null); owner = null; }
   if (remote && owner) {
     replaceWith(SHARED.known, remote.known);
     replaceWith(SHARED.weak, remote.weak);
