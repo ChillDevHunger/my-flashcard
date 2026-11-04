@@ -1165,15 +1165,22 @@ async function push() {
   const r = await sb.from('user_progress').upsert({user_id: user.id, known: SHARED.known, weak: SHARED.weak, updated_at: new Date().toISOString()});
   if (r.error) throw r.error;
 }
-// Gộp: known = hợp của hai bên; weak = lấy số lần sai lớn hơn cho mỗi từ
+const OWNER_KEY = 'vocab_owner';
+const replaceWith = (obj, src) => { Object.keys(obj).forEach(k => delete obj[k]); Object.assign(obj, src || {}); };
+// Dữ liệu ẩn danh (chưa có chủ) được gộp vào tài khoản; dữ liệu đã thuộc tài khoản thì bản trên server thắng
 async function mergeOnLogin() {
   const remote = await pull();
-  if (remote) {
+  let owner = null; try { owner = localStorage.getItem(OWNER_KEY); } catch (e) {}
+  if (remote && owner) {
+    replaceWith(SHARED.known, remote.known);
+    replaceWith(SHARED.weak, remote.weak);
+  } else if (remote) {
     Object.keys(remote.known || {}).forEach(k => { SHARED.known[k] = 1; });
     Object.keys(remote.weak || {}).forEach(k => { SHARED.weak[k] = Math.max(SHARED.weak[k] || 0, remote.weak[k] || 0); });
-    persistLocal();
   }
-  await push();
+  if (!remote || !owner) await push();
+  persistLocal();
+  try { localStorage.setItem(OWNER_KEY, user.id); } catch (e) {}
   SHARED.refreshAll();
 }
 function schedulePush() {
@@ -1184,11 +1191,21 @@ function schedulePush() {
 SHARED.onChange = schedulePush;
 
 async function onUser(u) {
-  user = u; ready = false; drawBox();
-  if (!user) return;
+  const prev = user;
+  user = u; ready = false; clearTimeout(syncTimer); drawBox();
+  if (!user) {
+    if (prev) {
+      replaceWith(SHARED.known, null); replaceWith(SHARED.weak, null);
+      try { localStorage.removeItem(KEY); localStorage.removeItem(WEAK_KEY); localStorage.removeItem(OWNER_KEY); } catch (e) {}
+      SHARED.refreshAll();
+    }
+    return;
+  }
   form.hidden = true; say('');
-  try { await mergeOnLogin(); } catch (e) { /* offline: giữ dữ liệu cục bộ */ }
-  ready = true;
+  while (user === u) {
+    try { await mergeOnLogin(); ready = true; return; }
+    catch (e) { await new Promise(r => setTimeout(r, 5000)); }
+  }
 }
 
 if (configured) {
