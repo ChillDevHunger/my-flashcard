@@ -205,6 +205,16 @@ body{margin:0;min-height:100%;background:var(--desk);color:var(--ink);font-famil
 .panel[hidden]{display:none}
 @media (max-width:520px){.app{padding:10px 12px 40px}.tabs{width:100%}.tabs button{flex:1}}
 
+#auth{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:.85rem;color:var(--muted)}
+#auth .who{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#auth button{font:inherit;font-size:.85rem;border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:10px;padding:6px 12px;min-height:36px;cursor:pointer}
+#auth button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+#authForm{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 12px}
+#authForm[hidden]{display:none}
+#authForm input{font:inherit;font-size:.9rem;border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:10px;padding:8px 10px;min-height:40px;flex:1 1 160px;min-width:0}
+#authForm button{font:inherit;border:0;background:var(--accent);color:var(--accent-ink);border-radius:10px;padding:8px 14px;min-height:40px;cursor:pointer}
+#authForm button.alt{background:var(--chip);color:var(--ink);border:1px solid var(--line)}
+#authMsg{flex-basis:100%;font-size:.85rem;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -216,7 +226,16 @@ body{margin:0;min-height:100%;background:var(--desk);color:var(--ink);font-famil
       <button role="tab" id="tab-pr" aria-selected="false" aria-controls="pr">Luyện tập</button>
       <button role="tab" id="tab-wl" aria-selected="false" aria-controls="wl">Danh sách</button>
     </div>
+    <div id="auth"></div>
   </div>
+  <form id="authForm" hidden>
+    <input id="authEmail" type="email" placeholder="Email" aria-label="Email" autocomplete="email" required>
+    <input id="authPass" type="password" placeholder="Mật khẩu (tối thiểu 6 ký tự)" aria-label="Mật khẩu" autocomplete="current-password" minlength="6" required>
+    <button type="submit" id="authIn">Đăng nhập</button>
+    <button type="button" id="authUp" class="alt">Đăng ký</button>
+    <button type="button" id="authCancel" class="alt">Hủy</button>
+    <div id="authMsg" role="status" aria-live="polite"></div>
+  </form>
   <div id="fc" class="panel" role="tabpanel" aria-labelledby="tab-fc">
 
   <header>
@@ -252,7 +271,11 @@ body{margin:0;min-height:100%;background:var(--desk);color:var(--ink);font-famil
     <ul class="wlist" id="wlList"></ul>
   </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>
+// ---------- Cấu hình Supabase (khóa anon là công khai; KHÔNG dán service-role key) ----------
+const SUPABASE_URL = '';       // ví dụ: https://xxxx.supabase.co
+const SUPABASE_ANON_KEY = '';  // anon public key
 const DECKS = [
 {id:'rel1', name:'Quan hệ 1', raw:`
 acquaintance|n · get acquainted (v-phr) = làm quen|/əˈkweɪn.təns/|người quen|He isn't a close friend, just an *acquaintance* from my old job.|Anh ấy không phải bạn thân, chỉ là người quen từ chỗ làm cũ của tôi.
@@ -620,14 +643,14 @@ DECKS.forEach(d => d.raw.split('\n').forEach(line => {
 const deckName = id => (DECKS.find(d => d.id === id) || {}).name || '';
 
 
-const SHARED = {known: {}, tab: 'fc', goPractice: null};
+const SHARED = {known: {}, weak: {}, tab: 'fc', goPractice: null, onChange: () => {}, refreshAll: () => {}};
 
 (function () {
 // ---------- Trạng thái ----------
 const KEY = 'flashcard_known_v1';
 const known = SHARED.known;
 try { Object.assign(known, JSON.parse(localStorage.getItem(KEY) || '{}') || {}); } catch (e) {}
-function save() { try { localStorage.setItem(KEY, JSON.stringify(known)); } catch (e) {} }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(known)); } catch (e) {} SHARED.onChange(); }
 
 let deckId = 'all', onlyUnknown = false, shuffled = false, order = [], idx = 0, flipped = false, busy = false;
 
@@ -780,6 +803,7 @@ document.addEventListener('keydown', e => {
 });
 
 $('toPractice').onclick = () => SHARED.goPractice(deckId);
+window.FC = {refresh: () => build(false)};
 build();
 
 })();
@@ -825,9 +849,9 @@ const starred = c => (c.ex.match(/\*(.+?)\*/) || [, c.w])[1];
 
 // ---------- Lưu từ hay sai ----------
 const WEAK_KEY = 'practice_weak_v1';
-let weak = {};
-try { weak = JSON.parse(localStorage.getItem(WEAK_KEY) || '{}') || {}; } catch (e) { weak = {}; }
-const saveWeak = () => { try { localStorage.setItem(WEAK_KEY, JSON.stringify(weak)); } catch (e) {} };
+const weak = SHARED.weak;
+try { Object.assign(weak, JSON.parse(localStorage.getItem(WEAK_KEY) || '{}') || {}); } catch (e) {}
+const saveWeak = () => { try { localStorage.setItem(WEAK_KEY, JSON.stringify(weak)); } catch (e) {} SHARED.onChange(); };
 const weakCount = () => CARDS.filter(c => weak[c.id]).length;
 
 // ---------- Cài đặt ----------
@@ -1105,6 +1129,90 @@ $('wlSearch').oninput = e => { q = e.target.value; renderList(); };
 window.WL = {refresh: () => { renderChips(); renderList(); }};
 })();
 
+// ---------- Tài khoản & đồng bộ tiến độ (Supabase) ----------
+(function () {
+const $a = id => document.getElementById(id);
+const box = $a('auth'), form = $a('authForm'), msg = $a('authMsg');
+const configured = !!(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
+let sb = null, user = null, syncTimer = null, ready = false;
+const KEY = 'flashcard_known_v1', WEAK_KEY = 'practice_weak_v1';
+
+function say(t) { msg.textContent = t || ''; }
+function drawBox() {
+  box.innerHTML = '';
+  const mk = (t, fn) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = t; b.onclick = fn; return b; };
+  if (!configured) {
+    const sp = document.createElement('span'); sp.textContent = 'Đăng nhập: chưa cấu hình'; box.appendChild(sp); return;
+  }
+  if (user) {
+    const sp = document.createElement('span'); sp.className = 'who'; sp.textContent = user.email; sp.title = user.email;
+    box.appendChild(sp); box.appendChild(mk('Đăng xuất', () => sb.auth.signOut()));
+  } else {
+    box.appendChild(mk('Đăng nhập / Đăng ký', () => { form.hidden = !form.hidden; if (!form.hidden) $a('authEmail').focus(); }));
+  }
+}
+
+function localData() { return {known: SHARED.known, weak: SHARED.weak}; }
+function persistLocal() {
+  try { localStorage.setItem(KEY, JSON.stringify(SHARED.known)); localStorage.setItem(WEAK_KEY, JSON.stringify(SHARED.weak)); } catch (e) {}
+}
+async function pull() {
+  const r = await sb.from('user_progress').select('known,weak').eq('user_id', user.id).maybeSingle();
+  if (r.error) throw r.error;
+  return r.data;
+}
+async function push() {
+  const r = await sb.from('user_progress').upsert({user_id: user.id, known: SHARED.known, weak: SHARED.weak, updated_at: new Date().toISOString()});
+  if (r.error) throw r.error;
+}
+// Gộp: known = hợp của hai bên; weak = lấy số lần sai lớn hơn cho mỗi từ
+async function mergeOnLogin() {
+  const remote = await pull();
+  if (remote) {
+    Object.keys(remote.known || {}).forEach(k => { SHARED.known[k] = 1; });
+    Object.keys(remote.weak || {}).forEach(k => { SHARED.weak[k] = Math.max(SHARED.weak[k] || 0, remote.weak[k] || 0); });
+    persistLocal();
+  }
+  await push();
+  SHARED.refreshAll();
+}
+function schedulePush() {
+  if (!user || !ready) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => { push().catch(() => {}); }, 800);
+}
+SHARED.onChange = schedulePush;
+
+async function onUser(u) {
+  user = u; ready = false; drawBox();
+  if (!user) return;
+  form.hidden = true; say('');
+  try { await mergeOnLogin(); } catch (e) { /* offline: giữ dữ liệu cục bộ */ }
+  ready = true;
+}
+
+if (configured) {
+  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  sb.auth.onAuthStateChange((ev, session) => {
+    const u = session ? session.user : null;
+    if ((u && u.id) === (user && user.id)) return;
+    setTimeout(() => onUser(u), 0);
+  });
+  const run = async mode => {
+    const email = $a('authEmail').value.trim(), password = $a('authPass').value;
+    if (!email || password.length < 6) { say('Nhập email và mật khẩu (tối thiểu 6 ký tự).'); return; }
+    say('Đang xử lý…');
+    const r = mode === 'up' ? await sb.auth.signUp({email, password}) : await sb.auth.signInWithPassword({email, password});
+    if (r.error) { say(mode === 'up' ? 'Không đăng ký được: ' + r.error.message : 'Email hoặc mật khẩu không đúng.'); return; }
+    if (mode === 'up' && !r.data.session) say('Đã đăng ký. Hãy kiểm tra email để xác nhận, rồi đăng nhập.');
+  };
+  form.onsubmit = e => { e.preventDefault(); run('in'); };
+  $a('authUp').onclick = () => run('up');
+  $a('authCancel').onclick = () => { form.hidden = true; say(''); };
+}
+drawBox();
+})();
+
 // ---------- Chuyển tab ----------
 const tabBtns = {fc: document.getElementById('tab-fc'), pr: document.getElementById('tab-pr'), wl: document.getElementById('tab-wl')};
 function switchTab(t) {
@@ -1124,6 +1232,7 @@ tabBtns.pr.onclick = () => switchTab('pr');
 tabBtns.wl.onclick = () => switchTab('wl');
 let startTab = 'fc'; try { const st = localStorage.getItem('vocab_tab'); startTab = tabBtns[st] ? st : 'fc'; } catch (e) {}
 switchTab(startTab);
+SHARED.refreshAll = () => { if (window.FC) window.FC.refresh(); switchTab(SHARED.tab); };
 
 </script>
 </body>
