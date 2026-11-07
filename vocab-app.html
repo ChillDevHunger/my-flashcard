@@ -766,8 +766,10 @@ SHARED.persistSrs = () => {
   try { localStorage.setItem(SRS_KEY, JSON.stringify(SHARED.srs)); localStorage.setItem(CFG_KEY, JSON.stringify(SHARED.cfg)); } catch (e) {}
 };
 SHARED.saveSrs = () => { SHARED.persistSrs(); SHARED.onChange(); };
-SHARED.grade = (id, ok) => {
-  const cur = SHARED.srs[id], next = srsGrade(cur, ok, ymd(new Date()));
+SHARED.grade = (id, ok, introduce = true) => {
+  const cur = SHARED.srs[id];
+  if (!cur && !introduce) return;
+  const next = srsGrade(cur, ok, ymd(new Date()));
   if (next !== cur) { SHARED.srs[id] = next; SHARED.saveSrs(); }
 };
 SHARED.setNewPerDay = n => { SHARED.cfg = {newPerDay: clampNew(n), t: Date.now()}; SHARED.saveSrs(); };
@@ -898,9 +900,10 @@ function go(delta, thenFn) {
 function mark(val) {
   if (!order.length) return;
   const c = order[idx];
+  const seen = !!(known[c.id] || weak[c.id]);
   if (val) known[c.id] = 1; else delete known[c.id];
   save();
-  SHARED.grade(c.id, !!val);
+  SHARED.grade(c.id, !!val, !!val || seen);
   if (onlyUnknown && val) {
     // thẻ vừa thuộc sẽ rời khỏi danh sách ôn
     const was = idx;
@@ -1152,11 +1155,12 @@ function answer(given, skipped) {
     }
   }
   Q.done = true;
+  const seen = !!(known[c.id] || weak[c.id]);
   Q.results.push({c, ok, t: q.t});
   if (ok) { Q.right++; if (weak[c.id]) { weak[c.id]--; if (weak[c.id] <= 0) delete weak[c.id]; } }
   else { weak[c.id] = (weak[c.id] || 0) + 1; }
   saveWeak();
-  SHARED.grade(c.id, ok);
+  SHARED.grade(c.id, ok, seen);
 
   if (q.t === 'ev' || q.t === 've') {
     document.querySelectorAll('.opt').forEach(b => {
