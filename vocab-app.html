@@ -171,6 +171,46 @@ body{margin:0;min-height:100%;background:var(--desk);color:var(--ink);font-famil
 #fc .keys{display:none}}
 @media (prefers-reduced-motion:reduce){#fc .card{transition:none}
 #fc .bar i{transition:none}}
+#rv h1,#rv h2{font-family:"Bricolage Grotesque",system-ui,sans-serif;margin:0;letter-spacing:-.01em}
+#rv h1{font-size:1.45rem}
+#rv .sub{color:var(--muted);margin:2px 0 16px;font-size:.92rem}
+#rv .sheet{background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:18px 20px;margin-bottom:14px}
+#rv .sheet h2{font-size:1.05rem;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--red)}
+#rv .tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+#rv .tile{border:1px solid var(--line);background:var(--chip);border-radius:12px;padding:10px 12px}
+#rv .tile b{display:block;font-family:"Bricolage Grotesque",system-ui,sans-serif;font-size:1.8rem;line-height:1.1}
+#rv .tile span{color:var(--muted);font-size:.82rem}
+#rv .boxes{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+#rv .boxes span{border:1px solid var(--line);background:var(--chip);border-radius:999px;padding:3px 10px;font-size:.8rem;color:var(--muted)}
+#rv .boxes b{color:var(--ink);font-weight:600}
+#rv .setting{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#rv .setting label{font-weight:500}
+#rv .setting input{width:90px;font:inherit;font-size:1.1rem;padding:8px 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);min-height:44px}
+#rv .note{color:var(--muted);font-size:.85rem;margin:8px 0 0}
+#rv .primary{font:inherit;font-weight:600;border:0;background:var(--accent);color:var(--accent-ink);padding:14px 22px;border-radius:12px;cursor:pointer;width:100%;font-size:1.05rem;min-height:52px}
+#rv .primary:disabled{opacity:.45;cursor:not-allowed}
+#rv .ghost{font:inherit;border:1px solid var(--line);background:var(--chip);color:var(--ink);padding:12px 18px;border-radius:12px;cursor:pointer;min-height:48px}
+#rv button:focus-visible,#rv input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+#rv .top{display:flex;align-items:center;gap:12px;margin-bottom:10px;font-size:.9rem;color:var(--muted)}
+#rv .top .grow{flex:1}
+#rv .qcard .head{display:flex;justify-content:space-between;align-items:center;gap:12px;color:var(--muted);font-size:.85rem;margin-bottom:10px}
+#rv .tag{border:1px solid var(--line);border-radius:6px;padding:1px 8px;color:var(--ink);background:var(--chip);font-size:.8rem}
+#rv .word{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-weight:700;font-size:clamp(1.9rem,7vw,2.6rem);line-height:1.15;overflow-wrap:anywhere}
+#rv .ipa{display:flex;align-items:center;gap:10px;color:var(--accent);margin:6px 0 10px}
+#rv .spk{border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:999px;cursor:pointer;min-width:44px;min-height:44px;padding:0 14px;font:inherit}
+#rv .lbl{font-size:.8rem;color:var(--muted)}
+#rv .ex{font-family:Newsreader,Georgia,serif;font-size:1.3rem;line-height:1.55;margin:2px 0 0}
+#rv .ex-vi{color:var(--muted);margin:2px 0 0}
+#rv .vi{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-weight:700;font-size:clamp(1.5rem,6vw,2.1rem);line-height:1.2;margin:14px 0 8px;padding-top:12px;border-top:1px dashed var(--line)}
+#rv mark{background:var(--hl);color:var(--hl-ink);padding:0 3px;border-radius:3px}
+#rv .grades{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#rv .grades button{font:inherit;font-weight:600;font-size:1.05rem;border-radius:12px;padding:14px 8px;min-height:52px;cursor:pointer;border:1.5px solid var(--no);background:var(--chip);color:var(--no)}
+#rv .grades button.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+#rv .bar{flex:1;height:6px;background:var(--rule);border-radius:99px;overflow:hidden}
+#rv .bar i{display:block;height:100%;background:var(--accent);transition:width .25s}
+#rv .keys{text-align:center;color:var(--muted);font-size:.78rem;margin-top:14px}
+@media (max-width:520px){#rv .keys{display:none}#rv .sheet{padding:16px}}
+@media (prefers-reduced-motion:reduce){#rv .bar i{transition:none}}
 .app{max-width:760px;margin:0 auto;padding:12px 16px 48px}
 .shell-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
 .brand{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-weight:700;font-size:1.25rem;letter-spacing:-.01em}
@@ -203,7 +243,7 @@ body{margin:0;min-height:100%;background:var(--desk);color:var(--ink);font-famil
 .tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
 .tabs button:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
 .panel[hidden]{display:none}
-@media (max-width:520px){.app{padding:10px 12px 40px}.tabs{width:100%}.tabs button{flex:1}}
+@media (max-width:520px){.app{padding:10px 12px 40px}.tabs{width:100%}.tabs button{flex:1;padding:10px 6px;font-size:.9rem}}
 
 #auth{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:.85rem;color:var(--muted)}
 #auth .who{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -222,6 +262,7 @@ body{margin:0;min-height:100%;background:var(--desk);color:var(--ink);font-famil
   <div class="shell-head">
     <div class="brand">Từ vựng Anh – Việt</div>
     <div class="tabs" role="tablist" aria-label="Chế độ học">
+      <button role="tab" id="tab-rv" aria-selected="false" aria-controls="rv">Ôn hôm nay</button>
       <button role="tab" id="tab-fc" aria-selected="true" aria-controls="fc">Flashcard</button>
       <button role="tab" id="tab-pr" aria-selected="false" aria-controls="pr">Luyện tập</button>
       <button role="tab" id="tab-wl" aria-selected="false" aria-controls="wl">Danh sách</button>
@@ -236,6 +277,7 @@ body{margin:0;min-height:100%;background:var(--desk);color:var(--ink);font-famil
     <button type="button" id="authCancel" class="alt">Hủy</button>
     <div id="authMsg" role="status" aria-live="polite"></div>
   </form>
+  <div id="rv" class="panel" role="tabpanel" aria-labelledby="tab-rv" hidden></div>
   <div id="fc" class="panel" role="tabpanel" aria-labelledby="tab-fc">
 
   <header>
@@ -643,7 +685,101 @@ DECKS.forEach(d => d.raw.split('\n').forEach(line => {
 const deckName = id => (DECKS.find(d => d.id === id) || {}).name || '';
 
 
-const SHARED = {known: {}, weak: {}, tab: 'fc', goPractice: null, onChange: () => {}, refreshAll: () => {}};
+const SHARED = {known: {}, weak: {}, srs: {}, cfg: {newPerDay: 10, t: 0}, tab: 'fc', goPractice: null, onChange: () => {}, refreshAll: () => {}};
+
+// ---------- Lịch ôn Leitner: hàm thuần (SRS-PURE-BEGIN) ----------
+// Hộp 1..5; mỗi thẻ: {box, due: 'yyyy-mm-dd' (giờ địa phương), lastReviewed: 'yyyy-mm-dd' | '', added: 'yyyy-mm-dd' | ''}
+const LEITNER_DAYS = [1, 2, 4, 8, 16];
+const DEFAULT_NEW_PER_DAY = 10, MAX_NEW_PER_DAY = 100;
+const pad2 = n => (n < 10 ? '0' : '') + n;
+const ymd = d => d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+const addDays = (s, n) => { const p = s.split('-'); return ymd(new Date(+p[0], +p[1] - 1, +p[2] + n)); };
+const clampNew = v => { v = Math.floor(Number(v)); return isFinite(v) ? Math.min(MAX_NEW_PER_DAY, Math.max(0, v)) : DEFAULT_NEW_PER_DAY; };
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const validEntry = e => !!e && typeof e === 'object' && Number.isInteger(e.box) && e.box >= 1 && e.box <= 5 && DATE_RE.test(e.due);
+// Giữ lại các thẻ hợp lệ (bỏ khóa bắt đầu bằng "_")
+function srsClean(obj) {
+  const out = {};
+  Object.keys(obj || {}).forEach(k => {
+    const e = obj[k];
+    if (k[0] === '_' || !validEntry(e)) return;
+    out[k] = {box: e.box, due: e.due, lastReviewed: DATE_RE.test(e.lastReviewed) ? e.lastReviewed : '', added: DATE_RE.test(e.added) ? e.added : ''};
+  });
+  return out;
+}
+// Chấm một lần ôn. Trả về chính thẻ cũ nếu không có gì đổi (đúng nhưng chưa đến hạn).
+function srsGrade(e, ok, today) {
+  const added = (e && e.added) || today;
+  if (!ok) return {box: 1, due: addDays(today, LEITNER_DAYS[0]), lastReviewed: today, added};
+  if (e && e.due > today) return e;
+  const box = Math.min(5, (e ? e.box : 1) + 1);
+  return {box, due: addDays(today, LEITNER_DAYS[box - 1]), lastReviewed: today, added};
+}
+// Từ đã thuộc -> hộp 3, hạn rải trong 1..5 ngày tới; từ hay sai -> hộp 1, đến hạn hôm nay. Chỉ tạo cho thẻ chưa có lịch.
+function srsMigrate(srs, ids, known, weak, today, rnd) {
+  const out = {};
+  ids.forEach(id => {
+    if (srs[id]) return;
+    if (weak[id]) out[id] = {box: 1, due: today, lastReviewed: '', added: ''};
+    else if (known[id]) out[id] = {box: 3, due: addDays(today, 1 + Math.floor(rnd() * 5)), lastReviewed: '', added: ''};
+  });
+  return out;
+}
+// Gộp hai bản lịch: theo từng thẻ, bản có lastReviewed mới hơn thắng; bằng nhau thì lấy bản b (server)
+function srsMerge(a, b) {
+  const out = Object.assign({}, b);
+  Object.keys(a).forEach(k => { if (!b[k] || a[k].lastReviewed > b[k].lastReviewed) out[k] = a[k]; });
+  return out;
+}
+function srsEqual(a, b) {
+  const ka = Object.keys(a);
+  return ka.length === Object.keys(b).length && ka.every(k => b[k] && a[k].box === b[k].box && a[k].due === b[k].due && a[k].lastReviewed === b[k].lastReviewed && a[k].added === b[k].added);
+}
+// Kế hoạch hôm nay: thẻ đến hạn (hạn cũ trước, hộp thấp trước) + thẻ mới còn trong hạn mức mỗi ngày
+function srsPlan(ids, srs, today, newPerDay) {
+  const due = ids.filter(id => srs[id] && srs[id].due <= today)
+    .sort((x, y) => srs[x].due < srs[y].due ? -1 : srs[x].due > srs[y].due ? 1 : srs[x].box - srs[y].box);
+  const introduced = ids.filter(id => srs[id] && srs[id].added === today).length;
+  const room = Math.max(0, newPerDay - introduced);
+  return {due, fresh: ids.filter(id => !srs[id]).slice(0, room), introduced};
+}
+function srsBoxCounts(ids, srs) {
+  const n = [0, 0, 0, 0, 0];
+  ids.forEach(id => { if (srs[id]) n[srs[id].box - 1]++; });
+  return n;
+}
+function srsNextDue(ids, srs, today) {
+  let best = '';
+  ids.forEach(id => { const e = srs[id]; if (e && e.due > today && (!best || e.due < best)) best = e.due; });
+  return best;
+}
+// (SRS-PURE-END)
+
+// ---------- Trạng thái lịch ôn + cài đặt ----------
+const SRS_KEY = 'srs_v1', CFG_KEY = 'srs_cfg_v1';
+try { Object.assign(SHARED.srs, srsClean(JSON.parse(localStorage.getItem(SRS_KEY) || '{}'))); } catch (e) {}
+try {
+  const c = JSON.parse(localStorage.getItem(CFG_KEY) || 'null');
+  if (c) SHARED.cfg = {newPerDay: clampNew(c.newPerDay), t: Number(c.t) || 0};
+} catch (e) {}
+SHARED.persistSrs = () => {
+  try { localStorage.setItem(SRS_KEY, JSON.stringify(SHARED.srs)); localStorage.setItem(CFG_KEY, JSON.stringify(SHARED.cfg)); } catch (e) {}
+};
+SHARED.saveSrs = () => { SHARED.persistSrs(); SHARED.onChange(); };
+SHARED.grade = (id, ok, introduce = true) => {
+  const cur = SHARED.srs[id];
+  if (!cur && !introduce) return;
+  const next = srsGrade(cur, ok, ymd(new Date()));
+  if (next !== cur) { SHARED.srs[id] = next; SHARED.saveSrs(); }
+};
+SHARED.setNewPerDay = n => { SHARED.cfg = {newPerDay: clampNew(n), t: Date.now()}; SHARED.saveSrs(); };
+// Tạo lịch cho từ đã thuộc / hay sai chưa có lịch; trả về số thẻ mới tạo
+SHARED.migrate = () => {
+  const add = srsMigrate(SHARED.srs, CARDS.map(c => c.id), SHARED.known, SHARED.weak, ymd(new Date()), Math.random);
+  const n = Object.keys(add).length;
+  if (n) { Object.assign(SHARED.srs, add); SHARED.persistSrs(); }
+  return n;
+};
 
 (function () {
 // ---------- Trạng thái ----------
@@ -764,8 +900,10 @@ function go(delta, thenFn) {
 function mark(val) {
   if (!order.length) return;
   const c = order[idx];
+  const seen = !!(known[c.id] || weak[c.id]);
   if (val) known[c.id] = 1; else delete known[c.id];
   save();
+  SHARED.grade(c.id, !!val, !!val || seen);
   if (onlyUnknown && val) {
     // thẻ vừa thuộc sẽ rời khỏi danh sách ôn
     const was = idx;
@@ -784,7 +922,7 @@ $('shuffle').onclick = () => { shuffled = !shuffled; build(); };
 $('onlyUnknown').onclick = () => { onlyUnknown = !onlyUnknown; build(); };
 let resetTimer = null;
 $('reset').onclick = () => {
-  if (resetTimer) { clearTimeout(resetTimer); resetTimer = null; $('reset').textContent = 'Xóa tiến độ'; Object.keys(known).forEach(k => delete known[k]); save(); onlyUnknown = false; build(); return; }
+  if (resetTimer) { clearTimeout(resetTimer); resetTimer = null; $('reset').textContent = 'Xóa tiến độ'; Object.keys(known).forEach(k => delete known[k]); save(); Object.keys(SHARED.srs).forEach(k => delete SHARED.srs[k]); SHARED.saveSrs(); onlyUnknown = false; build(); return; }
   $('reset').textContent = 'Bấm lần nữa để xóa';
   resetTimer = setTimeout(() => { resetTimer = null; $('reset').textContent = 'Xóa tiến độ'; }, 4000);
 };
@@ -1017,10 +1155,12 @@ function answer(given, skipped) {
     }
   }
   Q.done = true;
+  const seen = !!(known[c.id] || weak[c.id]);
   Q.results.push({c, ok, t: q.t});
   if (ok) { Q.right++; if (weak[c.id]) { weak[c.id]--; if (weak[c.id] <= 0) delete weak[c.id]; } }
   else { weak[c.id] = (weak[c.id] || 0) + 1; }
   saveWeak();
+  SHARED.grade(c.id, ok, seen);
 
   if (q.t === 'ev' || q.t === 've') {
     document.querySelectorAll('.opt').forEach(b => {
@@ -1087,6 +1227,105 @@ renderSetup();
 
 })();
 
+// ---------- Ôn hôm nay ----------
+(function () {
+const root = document.getElementById('rv');
+const $ = id => root.querySelector('#' + id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt = s => esc(s).replace(/\*(.+?)\*/g, '<mark>$1</mark>');
+const byId = {}; CARDS.forEach(c => { byId[c.id] = c; });
+const ids = CARDS.map(c => c.id);
+const plan = () => srsPlan(ids, SHARED.srs, ymd(new Date()), SHARED.cfg.newPerDay);
+let S = null; // phiên ôn đang chạy: {q:[{c, retry}], i, revealed, right, wrong}
+
+function renderHome() {
+  S = null;
+  const today = ymd(new Date()), p = plan(), total = p.due.length + p.fresh.length;
+  const counts = srsBoxCounts(ids, SHARED.srs), learning = counts.reduce((a, b) => a + b, 0);
+  const nxt = srsNextDue(ids, SHARED.srs, today);
+  root.innerHTML =
+    '<h1>Ôn hôm nay</h1><p class="sub">Nhớ thì lần ôn sau xa hơn, quên thì ôn lại vào ngày mai (hộp Leitner).</p>' +
+    '<section class="sheet"><div class="tiles">' +
+      '<div class="tile"><b>' + p.due.length + '</b><span>Đến hạn ôn</span></div>' +
+      '<div class="tile"><b>' + p.fresh.length + '</b><span>Từ mới hôm nay</span></div>' +
+      '<div class="tile"><b>' + learning + '</b><span>Đang theo lịch</span></div></div>' +
+      '<div class="boxes" aria-label="Số thẻ theo hộp">' +
+        counts.map((n, i) => '<span>Hộp ' + (i + 1) + ' (' + LEITNER_DAYS[i] + ' ngày): <b>' + n + '</b></span>').join('') + '</div></section>' +
+    '<section class="sheet"><div class="setting"><label for="newPerDay">Số từ mới mỗi ngày</label>' +
+      '<input id="newPerDay" type="number" min="0" max="' + MAX_NEW_PER_DAY + '" step="1" inputmode="numeric" value="' + SHARED.cfg.newPerDay + '"></div>' +
+      '<p class="note">Hôm nay đã học ' + p.introduced + ' từ mới. Đặt 0 nếu chỉ muốn ôn lại từ cũ.</p></section>' +
+    (total ? '<button class="primary" id="start">Bắt đầu ôn (' + total + ' thẻ)</button>'
+      : '<section class="sheet"><h2>Hôm nay xong rồi</h2><p class="note">Không còn thẻ nào cần ôn.' +
+        (nxt ? ' Lần ôn tiếp theo: ' + nxt.split('-').reverse().join('/') + '.' : '') + '</p></section>');
+  $('newPerDay').onchange = e => { SHARED.setNewPerDay(e.target.value); renderHome(); };
+  if ($('start')) $('start').onclick = start;
+}
+
+function start() {
+  const p = plan();
+  const q = p.due.concat(p.fresh).map(id => ({c: byId[id], retry: false}));
+  if (!q.length) { renderHome(); return; }
+  S = {q, i: 0, revealed: false, right: 0, wrong: 0};
+  renderCard();
+  window.scrollTo(0, 0);
+}
+
+function renderCard() {
+  const it = S.q[S.i], c = it.c, left = S.q.length - S.i;
+  root.innerHTML =
+    '<div class="top"><span>Còn ' + left + ' thẻ' + (it.retry ? ' · ôn lại' : '') + '</span>' +
+      '<div class="bar" aria-hidden="true"><i style="width:' + (S.i / S.q.length * 100) + '%"></i></div>' +
+      '<button class="ghost" id="quit">Thoát</button></div>' +
+    '<section class="sheet qcard"><div class="head"><span>' + esc(deckName(c.deck)) + '</span><span class="tag">' + esc(c.pos) + '</span></div>' +
+      '<div class="word">' + esc(c.w) + '</div>' +
+      '<div class="ipa"><span>🇺🇸 ' + esc(c.ipa) + '</span><button class="spk" id="spk" aria-label="Nghe phát âm">🔊</button></div>' +
+      '<span class="lbl">' + (S.revealed ? 'Ví dụ' : 'Nhớ nghĩa của từ trước khi xem đáp án') + '</span><p class="ex">' + fmt(c.ex) + '</p>' +
+      (S.revealed ? '<div class="vi">' + esc(c.vi) + '</div><p class="ex-vi">' + esc(c.exvi) + '</p>' : '') + '</section>' +
+    (S.revealed
+      ? '<div class="grades"><button id="no">Quên</button><button class="ok" id="yes">Nhớ</button></div>'
+      : '<button class="primary" id="show">Hiện đáp án</button>') +
+    '<div class="keys">Phím tắt: Space = hiện đáp án · 1 = quên · 2 = nhớ · P = nghe phát âm</div>';
+  $('quit').onclick = renderHome;
+  $('spk').onclick = () => SHARED.speak(c.w);
+  if (S.revealed) { $('no').onclick = () => grade(false); $('yes').onclick = () => grade(true); $('yes').focus(); }
+  else { $('show').onclick = reveal; $('show').focus(); }
+}
+
+function reveal() { if (S && !S.revealed) { S.revealed = true; renderCard(); } }
+
+function grade(ok) {
+  if (!S || !S.revealed) return;
+  const it = S.q[S.i];
+  if (!it.retry) { SHARED.grade(it.c.id, ok); if (ok) S.right++; else S.wrong++; }
+  if (!ok) S.q.push({c: it.c, retry: true});
+  S.i++; S.revealed = false;
+  if (S.i >= S.q.length) renderDone(); else renderCard();
+}
+
+function renderDone() {
+  const r = S.right, w = S.wrong; S = null;
+  root.innerHTML =
+    '<h1>Xong phần ôn hôm nay</h1><p class="sub">Các thẻ đã được xếp lịch cho lần ôn sau.</p>' +
+    '<section class="sheet"><div class="tiles"><div class="tile"><b>' + r + '</b><span>Nhớ</span></div>' +
+      '<div class="tile"><b>' + w + '</b><span>Quên</span></div></div></section>' +
+    '<button class="primary" id="home">Xong</button>';
+  $('home').onclick = renderHome;
+  window.scrollTo(0, 0);
+}
+
+document.addEventListener('keydown', e => {
+  if (SHARED.tab !== 'rv' || !S) return;
+  if (e.target.closest && e.target.closest('input')) return;
+  if (e.target.closest && e.target.closest('button') && (e.key === ' ' || e.key === 'Enter')) return; // để nút tự xử lý
+  if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); reveal(); }
+  else if (e.key === '1') grade(false);
+  else if (e.key === '2') grade(true);
+  else if (e.key === 'p' || e.key === 'P') SHARED.speak(S.q[S.i].c.w);
+});
+
+window.RV = {refresh: () => { if (!S) renderHome(); }};
+})();
+
 // ---------- Danh sách từ ----------
 (function () {
 const $ = id => document.getElementById(id);
@@ -1136,6 +1375,8 @@ const box = $a('auth'), form = $a('authForm'), msg = $a('authMsg');
 const configured = !!(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
 let sb = null, user = null, syncTimer = null, ready = false;
 const KEY = 'flashcard_known_v1', WEAK_KEY = 'practice_weak_v1';
+let srsOk = true; // false nếu server chưa có cột srs
+const srsMissing = r => srsOk && r.error && /srs/i.test(r.error.message || '');
 
 function say(t) { msg.textContent = t || ''; }
 function drawBox() {
@@ -1155,14 +1396,21 @@ function drawBox() {
 function localData() { return {known: SHARED.known, weak: SHARED.weak}; }
 function persistLocal() {
   try { localStorage.setItem(KEY, JSON.stringify(SHARED.known)); localStorage.setItem(WEAK_KEY, JSON.stringify(SHARED.weak)); } catch (e) {}
+  SHARED.persistSrs();
 }
+const srsPayload = () => Object.assign({}, SHARED.srs, {_cfg: SHARED.cfg});
 async function pull() {
-  const r = await sb.from('user_progress').select('known,weak').eq('user_id', user.id).maybeSingle();
+  const get = cols => sb.from('user_progress').select(cols).eq('user_id', user.id).maybeSingle();
+  let r = await get(srsOk ? 'known,weak,srs' : 'known,weak');
+  if (srsMissing(r)) { srsOk = false; r = await get('known,weak'); }
   if (r.error) throw r.error;
   return r.data;
 }
 async function push() {
-  const r = await sb.from('user_progress').upsert({user_id: user.id, known: SHARED.known, weak: SHARED.weak, updated_at: new Date().toISOString()});
+  const row = {user_id: user.id, known: SHARED.known, weak: SHARED.weak, updated_at: new Date().toISOString()};
+  if (srsOk) row.srs = srsPayload();
+  let r = await sb.from('user_progress').upsert(row);
+  if (srsMissing(r)) { srsOk = false; delete row.srs; r = await sb.from('user_progress').upsert(row); }
   if (r.error) throw r.error;
 }
 const OWNER_KEY = 'vocab_owner';
@@ -1171,7 +1419,14 @@ const replaceWith = (obj, src) => { Object.keys(obj).forEach(k => delete obj[k])
 async function mergeOnLogin() {
   const remote = await pull();
   let owner = null; try { owner = localStorage.getItem(OWNER_KEY); } catch (e) {}
-  if (owner && owner !== user.id) { replaceWith(SHARED.known, null); replaceWith(SHARED.weak, null); owner = null; }
+  if (owner && owner !== user.id) { replaceWith(SHARED.known, null); replaceWith(SHARED.weak, null); replaceWith(SHARED.srs, null); SHARED.cfg = {newPerDay: DEFAULT_NEW_PER_DAY, t: 0}; owner = null; }
+  // Lịch ôn: theo từng thẻ, bản có lastReviewed mới hơn thắng (cài đặt: bản có t mới hơn thắng)
+  let remoteSrs = null, remoteCfg = null;
+  if (remote && remote.srs && typeof remote.srs === 'object') {
+    remoteSrs = srsClean(remote.srs);
+    const c = remote.srs._cfg;
+    if (c && typeof c === 'object') remoteCfg = {newPerDay: clampNew(c.newPerDay), t: Number(c.t) || 0};
+  }
   if (remote && owner) {
     replaceWith(SHARED.known, remote.known);
     replaceWith(SHARED.weak, remote.weak);
@@ -1179,7 +1434,11 @@ async function mergeOnLogin() {
     Object.keys(remote.known || {}).forEach(k => { SHARED.known[k] = 1; });
     Object.keys(remote.weak || {}).forEach(k => { SHARED.weak[k] = Math.max(SHARED.weak[k] || 0, remote.weak[k] || 0); });
   }
-  if (!remote || !owner) await push();
+  if (remoteSrs) replaceWith(SHARED.srs, srsMerge(SHARED.srs, remoteSrs));
+  if (remoteCfg && remoteCfg.t > SHARED.cfg.t) SHARED.cfg = remoteCfg;
+  SHARED.migrate();
+  const srsDiffers = srsOk && (!remoteSrs || !srsEqual(SHARED.srs, remoteSrs) || (remoteCfg ? remoteCfg.t : 0) !== SHARED.cfg.t);
+  if (!remote || !owner || srsDiffers) await push();
   persistLocal();
   try { localStorage.setItem(OWNER_KEY, user.id); } catch (e) {}
   SHARED.refreshAll();
@@ -1196,8 +1455,9 @@ async function onUser(u) {
   user = u; ready = false; clearTimeout(syncTimer); drawBox();
   if (!user) {
     if (prev) {
-      replaceWith(SHARED.known, null); replaceWith(SHARED.weak, null);
-      try { localStorage.removeItem(KEY); localStorage.removeItem(WEAK_KEY); localStorage.removeItem(OWNER_KEY); } catch (e) {}
+      replaceWith(SHARED.known, null); replaceWith(SHARED.weak, null); replaceWith(SHARED.srs, null);
+      SHARED.cfg = {newPerDay: DEFAULT_NEW_PER_DAY, t: 0};
+      try { localStorage.removeItem(KEY); localStorage.removeItem(WEAK_KEY); localStorage.removeItem(OWNER_KEY); localStorage.removeItem(SRS_KEY); localStorage.removeItem(CFG_KEY); } catch (e) {}
       SHARED.refreshAll();
     }
     return;
@@ -1232,23 +1492,23 @@ drawBox();
 })();
 
 // ---------- Chuyển tab ----------
-const tabBtns = {fc: document.getElementById('tab-fc'), pr: document.getElementById('tab-pr'), wl: document.getElementById('tab-wl')};
+const TABS = ['rv', 'fc', 'pr', 'wl'];
+const tabBtns = {};
+TABS.forEach(k => { tabBtns[k] = document.getElementById('tab-' + k); });
 function switchTab(t) {
   SHARED.tab = t;
-  document.getElementById('fc').hidden = t !== 'fc';
-  document.getElementById('pr').hidden = t !== 'pr';
-  document.getElementById('wl').hidden = t !== 'wl';
+  TABS.forEach(k => { document.getElementById(k).hidden = k !== t; });
   Object.keys(tabBtns).forEach(k => tabBtns[k].setAttribute('aria-selected', String(k === t)));
+  if (t === 'rv' && window.RV) window.RV.refresh();
   if (t === 'pr' && window.PR) window.PR.refresh();
   if (t === 'wl' && window.WL) window.WL.refresh();
   try { localStorage.setItem('vocab_tab', t); } catch (e) {}
   window.scrollTo(0, 0);
 }
 SHARED.goPractice = id => { switchTab('pr'); window.PR.focusDeck(id); };
-tabBtns.fc.onclick = () => switchTab('fc');
-tabBtns.pr.onclick = () => switchTab('pr');
-tabBtns.wl.onclick = () => switchTab('wl');
+TABS.forEach(k => { tabBtns[k].onclick = () => switchTab(k); });
 let startTab = 'fc'; try { const st = localStorage.getItem('vocab_tab'); startTab = tabBtns[st] ? st : 'fc'; } catch (e) {}
+SHARED.migrate();
 switchTab(startTab);
 SHARED.refreshAll = () => { if (window.FC) window.FC.refresh(); switchTab(SHARED.tab); };
 

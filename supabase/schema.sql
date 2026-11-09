@@ -14,3 +14,8 @@ create policy "insert own progress" on public.user_progress
   for insert with check (auth.uid() = user_id);
 create policy "update own progress" on public.user_progress
   for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- Lịch ôn Leitner (hộp, ngày đến hạn, lần ôn gần nhất) + cài đặt số từ mới mỗi ngày (khóa "_cfg").
+-- Chạy được nhiều lần; nếu chưa chạy thì app vẫn dùng được, chỉ không đồng bộ lịch ôn giữa các thiết bị.
+alter table public.user_progress add column if not exists srs jsonb not null default '{}'::jsonb;
+-- { "<deck>:<word>": {"box":1-5,"due":"yyyy-mm-dd","lastReviewed":"yyyy-mm-dd","added":"yyyy-mm-dd"}, "_cfg": {"newPerDay":10,"t":<ms>} }
