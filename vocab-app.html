@@ -766,6 +766,8 @@ SHARED.persistSrs = () => {
   try { localStorage.setItem(SRS_KEY, JSON.stringify(SHARED.srs)); localStorage.setItem(CFG_KEY, JSON.stringify(SHARED.cfg)); } catch (e) {}
 };
 SHARED.saveSrs = () => { SHARED.persistSrs(); SHARED.onChange(); };
+// Từ đã gặp (đã thuộc hoặc hay sai); known/weak nằm ở IIFE khác nhau nên phải đọc qua SHARED
+SHARED.seen = id => !!(SHARED.known[id] || SHARED.weak[id]);
 SHARED.grade = (id, ok, introduce = true) => {
   const cur = SHARED.srs[id];
   if (!cur && !introduce) return;
@@ -900,7 +902,7 @@ function go(delta, thenFn) {
 function mark(val) {
   if (!order.length) return;
   const c = order[idx];
-  const seen = !!(known[c.id] || weak[c.id]);
+  const seen = SHARED.seen(c.id);
   if (val) known[c.id] = 1; else delete known[c.id];
   save();
   SHARED.grade(c.id, !!val, !!val || seen);
@@ -1155,7 +1157,7 @@ function answer(given, skipped) {
     }
   }
   Q.done = true;
-  const seen = !!(known[c.id] || weak[c.id]);
+  const seen = SHARED.seen(c.id);
   Q.results.push({c, ok, t: q.t});
   if (ok) { Q.right++; if (weak[c.id]) { weak[c.id]--; if (weak[c.id] <= 0) delete weak[c.id]; } }
   else { weak[c.id] = (weak[c.id] || 0) + 1; }
