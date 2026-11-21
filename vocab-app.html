@@ -187,6 +187,16 @@ body{margin:0;min-height:100%;background:var(--desk);color:var(--ink);font-famil
 #rv .setting label{font-weight:500}
 #rv .setting input{width:90px;font:inherit;font-size:1.1rem;padding:8px 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);min-height:44px}
 #rv .note{color:var(--muted);font-size:.85rem;margin:8px 0 0}
+#rv .mastered{margin-top:14px}
+#rv .mastered summary{cursor:pointer;border-radius:8px}
+#rv .mastered summary h2{display:inline;border:0;margin:0;padding:0}
+#rv .mastered summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+#rv .mastered h3{font-size:.95rem;margin:14px 0 4px}
+#rv .wlist{list-style:none;margin:0;padding:0}
+#rv .wlist li{padding:8px 0;border-bottom:1px solid var(--rule)}
+#rv .wlist li:last-child{border-bottom:0}
+#rv .wlist .w{font-weight:600}
+#rv .wlist .m{color:var(--muted);font-size:.92rem}
 #rv .primary{font:inherit;font-weight:600;border:0;background:var(--accent);color:var(--accent-ink);padding:14px 22px;border-radius:12px;cursor:pointer;width:100%;font-size:1.05rem;min-height:52px}
 #rv .primary:disabled{opacity:.45;cursor:not-allowed}
 #rv .ghost{font:inherit;border:1px solid var(--line);background:var(--chip);color:var(--ink);padding:12px 18px;border-radius:12px;cursor:pointer;min-height:48px}
@@ -848,6 +858,10 @@ function srsBoxCounts(ids, srs) {
   ids.forEach(id => { if (srs[id]) n[srs[id].box - 1]++; });
   return n;
 }
+// Từ đã thuộc trong Ôn hôm nay = thẻ đã lên hộp 5 (giữ thứ tự ids)
+function srsMastered(ids, srs) {
+  return ids.filter(id => srs[id] && srs[id].box === 5);
+}
 function srsNextDue(ids, srs, today) {
   let best = '';
   ids.forEach(id => { const e = srs[id]; if (e && e.due > today && (!best || e.due < best)) best = e.due; });
@@ -1344,7 +1358,7 @@ function renderHome() {
   S = null;
   const today = ymd(new Date()), p = plan(), total = p.due.length + p.fresh.length;
   const counts = srsBoxCounts(ids, SHARED.srs), learning = counts.reduce((a, b) => a + b, 0);
-  const nxt = srsNextDue(ids, SHARED.srs, today);
+  const nxt = srsNextDue(ids, SHARED.srs, today), mastered = srsMastered(ids, SHARED.srs);
   root.innerHTML =
     '<h1>Ôn hôm nay</h1><p class="sub">Nhớ thì lần ôn sau xa hơn, quên thì ôn lại vào ngày mai (hộp Leitner).</p>' +
     '<section class="sheet"><div class="tiles">' +
@@ -1358,7 +1372,14 @@ function renderHome() {
       '<p class="note">Hôm nay đã học ' + p.introduced + ' từ mới. Đặt 0 nếu chỉ muốn ôn lại từ cũ.</p></section>' +
     (total ? '<button class="primary" id="start">Bắt đầu ôn (' + total + ' thẻ)</button>'
       : '<section class="sheet"><h2>Hôm nay xong rồi</h2><p class="note">Không còn thẻ nào cần ôn.' +
-        (nxt ? ' Lần ôn tiếp theo: ' + nxt.split('-').reverse().join('/') + '.' : '') + '</p></section>');
+        (nxt ? ' Lần ôn tiếp theo: ' + nxt.split('-').reverse().join('/') + '.' : '') + '</p></section>') +
+    '<details class="sheet mastered"><summary><h2>Từ đã thuộc: ' + mastered.length + ' / ' + learning + '</h2></summary>' +
+      '<p class="note">Thẻ đã lên hộp 5 (ôn mỗi ' + LEITNER_DAYS[4] + ' ngày). Quên một lần sẽ quay về hộp 1.</p>' +
+      (mastered.length ? DECKS.map(d => {
+        const ws = mastered.filter(id => byId[id].deck === d.id);
+        return ws.length ? '<h3>' + esc(d.name) + ' (' + ws.length + ')</h3><ul class="wlist">' +
+          ws.map(id => '<li><span class="w">' + esc(byId[id].w) + '</span> <span class="m">— ' + esc(byId[id].vi) + '</span></li>').join('') + '</ul>' : '';
+      }).join('') : '<p class="note">Chưa có từ nào lên hộp 5. Ôn đều mỗi ngày để từ lên hộp cao hơn.</p>') + '</details>';
   $('newPerDay').onchange = e => { SHARED.setNewPerDay(e.target.value); renderHome(); };
   if ($('start')) $('start').onclick = start;
 }
